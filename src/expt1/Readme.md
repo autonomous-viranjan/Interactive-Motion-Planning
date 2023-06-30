@@ -1,7 +1,7 @@
 # Experiment 1 
-- MIQP MPC based formulation for high-level motion planning
+- MIQP MPC for high-level motion planning
   - Auto Lane Selection
-  - Constant velocity NV model
+  - Constant velocity NV model for over the horizon predictions
 - PID controller for low-level control.
 
 ## To run:
