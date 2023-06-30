@@ -5,8 +5,8 @@ clear, clc, close all
 
 log_data = load("log.txt");
 %%
-start = 4;
-fin = 625;
+start = 238;
+fin = 847;
 X = log_data(start:fin, 1:5);
 X_ref = log_data(start:fin, 7:11);
 Ua = log_data(start:fin, 12);
