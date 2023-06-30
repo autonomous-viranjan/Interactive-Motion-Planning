@@ -1,7 +1,6 @@
 # Interactive Motion Planning
 
-- MIQP MPC formulation for high-level motion planning and PID controller for low-level control.
-- Real-time Software-in-the-loop simulation in CARLA with human-in-the-loop capability.
+- Real-time Software-in-the-loop simulation in CARLA with Human-in-the-loop capability.
 - MPC written in C++ and controller written in Python.
 - ROS (Noetic) for communication.
 
