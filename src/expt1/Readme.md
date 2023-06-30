@@ -1,5 +1,7 @@
 # Experiment 1 
-- MIQP MPC based formulation for high-level motion planning and PID controller for low-level control.
+- MIQP MPC based formulation for high-level motion planning
+  - Auto Lane Selection
+- PID controller for low-level control.
 
 ## To run:
 `catkin_make` the `Interactive-Motion-Planning` workspace. Modify `CMakeLists.txt` as required.
