@@ -11,8 +11,7 @@
 
 std::vector<double> Mpc::sol(std::vector<double> &initial_state, 
                             std::vector<double> &s1_1_front, std::vector<double> &s1_1_rear,
-                            std::vector<double> &s1_2_front, std::vector<double> &s1_2_rear,
-                            double &s_obs)
+                            std::vector<double> &s1_2_front, std::vector<double> &s1_2_rear)
 {
     /*
         MPC input: current state (initial state), NV position
@@ -29,7 +28,7 @@ std::vector<double> Mpc::sol(std::vector<double> &initial_state,
         GRBVar U[nu][T];
         GRBVar mu[lanes][T];
         GRBVar beta[obs_count][T];
-        GRBVar eps[2][T];
+        GRBVar eps[1][T];
 
         // Define the variables
         for (int k = 0; k < T; k++) {
@@ -40,12 +39,12 @@ std::vector<double> Mpc::sol(std::vector<double> &initial_state,
             X[4][k] = model.addVar(-5.0, 5.0, 0.0, GRB_CONTINUOUS, "rl_" + std::to_string(k));
             U[0][k] = model.addVar(ua_min, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "ua_" + std::to_string(k));
             U[1][k] = model.addVar(1, 2, 0.0, GRB_INTEGER, "ul_" + std::to_string(k));
-            mu[0][k] = model.addVar(0, 1, 0.0, GRB_BINARY, "mu1_" + std::to_string(k)); // lane indicator for lane 1
-            mu[1][k] = model.addVar(0, 1, 0.0, GRB_BINARY, "mu2_" + std::to_string(k)); // lane indicator for lane 2         
-            beta[0][k] = model.addVar(0, 1, 0.0, GRB_BINARY, "beta_" + std::to_string(k)); // front-back indicator for NV
-            beta[1][k] = model.addVar(0, 1, 0.0, GRB_BINARY, "beta_" + std::to_string(k)); // front-back indicator for stopped vehicle
-            eps[0][k] = model.addVar(0, 5, 0.0, GRB_CONTINUOUS); // slack var for NV constraint
-            eps[1][k] = model.addVar(0, 2, 0.0, GRB_CONTINUOUS); // slack var for stopped veh constraint
+            mu[0][k] = model.addVar(0, 1, 0.0, GRB_BINARY, "mu1_" + std::to_string(k));
+            mu[1][k] = model.addVar(0, 1, 0.0, GRB_BINARY, "mu2_" + std::to_string(k));
+            for (int o=0; o < obs_count; o++) {
+                beta[o][k] = model.addVar(0, 1, 0.0, GRB_BINARY, "beta_" + std::to_string(k));
+            }
+            eps[0][k] = model.addVar(0, 5, 0.0, GRB_CONTINUOUS);
         }
 
         // Define the dynamics
@@ -77,13 +76,10 @@ std::vector<double> Mpc::sol(std::vector<double> &initial_state,
             model.addConstr(X[3][k] - bigM * mu[1][k] >= 1 + delta - bigM);
             model.addConstr(X[3][k] - bigM * mu[1][k] <= 1 + delta);            
             // Collision avoidance
-            /* in lane 1 */
+            // in lane 1
             model.addConstr(X[0][k] - s1_1_front[k] + eps[0][k] - bigM * beta[0][k] - bigM * mu[0][k] >= -2 * bigM);
             model.addConstr(s1_1_rear[k] - X[0][k] + eps[0][k] + bigM * beta[0][k] - bigM * mu[0][k] >= -bigM);
-            //// obstacle
-            model.addConstr(X[0][k] - (s_obs + 5) + eps[1][k] - bigM * beta[1][k] - bigM * mu[0][k] >= -2 * bigM);
-            model.addConstr((s_obs - 10) - X[0][k] + eps[1][k] + bigM * beta[1][k] - bigM * mu[0][k] >= -bigM);
-            /* in lane 2 */
+            // in lane 2
             model.addConstr(X[0][k] - s1_2_front[k] - bigM * beta[0][k] - bigM * mu[1][k] >= -2 * bigM);
             model.addConstr(s1_2_rear[k] - X[0][k] + bigM * beta[0][k] - bigM * mu[1][k] >= -bigM);
         }
@@ -91,7 +87,7 @@ std::vector<double> Mpc::sol(std::vector<double> &initial_state,
         // Define the objective
         GRBQuadExpr obj = 0;
         for (int k = 0; k < T; k++) {    
-            obj += qv * (X[1][k] * X[1][k] - 2 * X[1][k] * vref) + qa * (X[2][k] * X[2][k]) + qa * (U[0][k] * U[0][k]) + 1e5 * eps[0][k] * eps[0][k] + 1e5 * eps[1][k] * eps[1][k];
+            obj += qv * (X[1][k] * X[1][k] - 2 * X[1][k] * vref) + qa * (X[2][k] * X[2][k]) + qa * (U[0][k] * U[0][k]) + 1e5 * eps[0][k] * eps[0][k];
         }
         for (int k = 1; k < T; k++) {
             obj += qul * (U[1][k] - U[1][k-1]) * (U[1][k] - U[1][k-1]) + qul * (X[3][k] - X[3][k-1]) * (X[3][k] - X[3][k-1]) + qda * (X[2][k] - X[2][k-1]) * (X[2][k] - X[2][k-1]);

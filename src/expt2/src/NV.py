@@ -269,8 +269,8 @@ class World(object):
             
             recommended_spawn_points = self.map.get_spawn_points()
             transform = recommended_spawn_points[46]
-            # transform.location += carla.Location(x=-20, y=-3.6)
-            transform.location += carla.Location(x=10, y=0)
+            transform.location += carla.Location(x=-20, y=-3.6)
+            # transform.location += carla.Location(x=-20, y=0)
             # transform.location += carla.Location(x=20)
             
             spawn_point = transform
@@ -1389,6 +1389,7 @@ def main():
     print(__doc__)
 
     try:
+
         game_loop(args)
 
     except KeyboardInterrupt:

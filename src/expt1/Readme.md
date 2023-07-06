@@ -1,8 +1,9 @@
-# Experiment 1 
+# Experiment 1
+Mandatory lane change (MLC) scenario: a stationary truck in ego's lane. Ego vehicle needs to negotiate with human driven vehicle to change lane.
 - MIQP MPC for high-level motion planning
   - Auto Lane Selection
   - Constant velocity NV model for over the horizon predictions
-- PID controller for low-level control.
+- PID controller for low-level control
 
 ## To run:
 `catkin_make` the `Interactive-Motion-Planning` workspace. Modify `CMakeLists.txt` as required.
@@ -19,7 +20,7 @@
 
 ### Running with predefined NV
 1. Run the CARLA server `./CarlaUE4.sh`
-2. Spawn predefined NV. `cd ~/CARLA_0.9.14/PythonAPI/Interactive-Motion-Planning/src/expt1/src` and run `python3 stopped_veh.py` for example
+2. Spawn predefined NV. `cd ~/CARLA_0.9.14/PythonAPI/Interactive-Motion-Planning/src/expt1/src` and run `python3 spawn_truck.py` for example
 3. Run ros master `roscore`
 4. In the ROS workspace source `source devel/setup.bash` in two new terminals
 5. Run Ego vehicle via `rosrun expt1 Ego_vehicle.py`

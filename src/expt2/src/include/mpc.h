@@ -9,8 +9,7 @@ class Mpc
 public:    
     std::vector<double> sol(std::vector<double> &initial_state, 
                             std::vector<double> &s1_1_front, std::vector<double> &s1_1_rear,
-                            std::vector<double> &s1_2_front, std::vector<double> &s1_2_rear,
-                            double &s_obs);
+                            std::vector<double> &s1_2_front, std::vector<double> &s1_2_rear);
 
     int getT() {
         return T;
@@ -34,7 +33,7 @@ private:
     double vref = 10.0; // reference speed
     int lref = 1;
     int lanes = 2;
-    int obs_count = 2;
+    int obs_count = 1;
 
     double qv = 10.0;    
     double qa = 30.0;
@@ -56,5 +55,8 @@ private:
     double tau = 0.275;
     double zeta = 1;
     double w_n = 1.091;
-    double K = 1.0; 
+    double K = 1.0;
+
+    // // Obstacle
+    // int obs = 80;  
 };

@@ -184,7 +184,7 @@ int main(int argc, char** argv)
 
     Mpc Opt; // instantiate MPC object
 
-    std::ofstream logFile ("src/expt1/data/log.txt"); // declare log file
+    std::ofstream logFile ("src/expt2/data/log.txt"); // declare log file
 
     PlannerNode planner_node(&nh);
 
