@@ -12,16 +12,9 @@ Mandatory lane change (MLC) scenario: a stationary truck in ego's lane. Ego vehi
 1. Run the CARLA server `./CarlaUE4.sh -prefernvidia`
 2. Run ros master `roscore`
 3. In the ROS workspace `cd ~/CARLA_0.9.14/PythonAPI/Interactive-Motion-Planning` source `source devel/setup.bash` in three new terminals
-4. Run Ego vehicle via `rosrun expt1 Ego_vehicle.py`
-5. Run Planner via `rosrun expt1 planner`
-6. Run Neighbor vehicle via `rosrun expt1 NV.py`
+4. Run Ego vehicle client via `rosrun expt1 ego_vehicle.py`
+5. Run Neighbor vehicle client via `rosrun expt1 NV.py`
+6. Run stopped vehicle client via `rosrun expt1 stopped_vehicle.py`
+7. Run Planner via `rosrun expt1 planner1`
 
-(Instructions for setting up wheels for driving available in NV.py)
-
-### Running with predefined NV
-1. Run the CARLA server `./CarlaUE4.sh`
-2. Spawn predefined NV. `cd ~/CARLA_0.9.14/PythonAPI/Interactive-Motion-Planning/src/expt1/src` and run `python3 spawn_truck.py` for example
-3. Run ros master `roscore`
-4. In the ROS workspace source `source devel/setup.bash` in two new terminals
-5. Run Ego vehicle via `rosrun expt1 Ego_vehicle.py`
-6. Run Planner via `rosrun expt1 planner`
+[Instructions for setting up wheels for driving available in NV.py]
