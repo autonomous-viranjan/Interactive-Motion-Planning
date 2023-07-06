@@ -2,7 +2,7 @@
 Mandatory lane change (MLC) scenario: a stationary truck in ego's lane. Ego vehicle needs to negotiate with human driven vehicle to change lane.
 - MIQP MPC for high-level motion planning
   - Auto Lane Selection
-  - Constant velocity NV model for over the horizon predictions
+  - ** Constant velocity NV model ** for over the horizon predictions
 - PID controller for low-level control
 
 ## To run:
