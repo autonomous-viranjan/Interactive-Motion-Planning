@@ -17,4 +17,4 @@ Mandatory lane change (MLC) scenario: a stationary truck in ego's lane. Ego vehi
 6. Run stopped vehicle client via `rosrun expt1 stopped_vehicle.py`
 7. Run Planner via `rosrun expt1 planner1`
 
-[Instructions for setting up wheels for driving available in NV.py]
+[Instructions for setting up wheels for driving are available in NV.py]
