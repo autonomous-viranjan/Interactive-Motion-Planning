@@ -48,8 +48,6 @@ private:
     void NVaccSubscriberCallback(const geometry_msgs::Twist::ConstPtr &nv_acc_msg);
     void obsPosSubscriberCallback(const geometry_msgs::Pose::ConstPtr &obs_pos_msg);
 
-    // void NVpredict(Mpc &Opt);
-
     double lane_width = 3.6;
     double gap = 10.0;
     double infn = 1e6;

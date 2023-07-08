@@ -136,13 +136,6 @@ std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV
             plan.push_back(X[4][1].get(GRB_DoubleAttr_X));
             plan.push_back(U[0][0].get(GRB_DoubleAttr_X));
             plan.push_back(U[1][0].get(GRB_DoubleAttr_X));
-
-            // for (int t=0; t < T; t++) {
-            //     // std::cout << "beta: " << beta[1][t].get(GRB_DoubleAttr_X) << std::endl;
-            //     // std::cout << "mu1: " << mu[0][t].get(GRB_DoubleAttr_X) << std::endl;
-            //     // std::cout << "ul: " << U[1][t].get(GRB_DoubleAttr_X) << std::endl;
-            //     // std::cout << "eps: " << eps[0][t].get(GRB_DoubleAttr_X) << std::endl;
-            // }
         }
         else {
             // vehicle slow

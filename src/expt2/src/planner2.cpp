@@ -101,40 +101,6 @@ void PlannerNode::obsPosSubscriberCallback(const geometry_msgs::Pose::ConstPtr &
     s_obs_ = -((x_obs - 85.235) * cos(0.003895) + (y_obs - 13.415) * sin(0.003895));
 }
 
-// void PlannerNode::NVpredict(Mpc &Opt)
-// {
-//     int T = Opt.getT();
-//     double dt = Opt.getdt();
-
-//     s_NV_pred_.clear(); // clear previous prediction
-//     s1_1_front_.clear();
-//     s1_1_rear_.clear();
-//     s1_2_front_.clear();
-//     s1_2_rear_.clear();    
-
-//     s_NV_pred_.push_back(s_NV_);
-//     for (int i=0; i < T; i++) {
-//         s_NV_pred_.push_back(s_NV_pred_[i] + v_NV_ * dt); // Constant velocity same lane model                
-//     }
-
-//     for (int i=0; i < T; i++) {
-//         if (l_NV_ < 1.5) {
-//             // NV in lane 1
-//             s1_1_front_.push_back(s_NV_pred_[i] + gap);
-//             s1_1_rear_.push_back(s_NV_pred_[i] - gap);
-//             s1_2_front_.push_back(-infn);
-//             s1_2_rear_.push_back(infn);
-//         }
-//         else {
-//             //NV in lane 2
-//             s1_1_front_.push_back(-infn);
-//             s1_1_rear_.push_back(infn);
-//             s1_2_front_.push_back(s_NV_pred_[i] + gap);
-//             s1_2_rear_.push_back(s_NV_pred_[i] - gap);
-//         }
-//     }
-// }
-
 void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
 {
     ros::Rate rate(20); // Hz
@@ -148,6 +114,7 @@ void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
         X0.push_back(l_);
         X0.push_back(rl_);
         ROS_INFO("Ego init:- s: %f, v: %f, a: %f, l: %f", s_, v_, a_, l_);
+
         std::vector<double> X0_NV;
         X0_NV.push_back(s_NV_);
         X0_NV.push_back(v_NV_);
@@ -158,8 +125,6 @@ void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
         geometry_msgs::Accel plan_acc;
         geometry_msgs::Accel plan_ua;
         geometry_msgs::Pose plan_ul;        
-        
-        // this->NVpredict(Opt);
         
         std::vector<double> plan = Opt.sol(X0, X0_NV , s_obs_);
 
@@ -179,7 +144,6 @@ void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
         plan_pos_.publish(plan_pos);
         plan_vel_.publish(plan_vel);
         plan_acc_.publish(plan_acc);
-
         plan_ua_.publish(plan_ua);
         plan_ul_.publish(plan_ul);
 
