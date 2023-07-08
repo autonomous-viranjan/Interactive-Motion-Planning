@@ -3,8 +3,8 @@
     EMC2 Lab Clemson University
 */
 
-#include "include/node.h"
-#include "include/mpc.h"
+#include "include/node2.h"
+#include "include/jointmpc.h"
 #include <cstdlib>
 #include <fstream>
 
@@ -13,12 +13,19 @@ PlannerNode::PlannerNode(ros::NodeHandle *nodehandle):nh_(*nodehandle)
     initSubscribers();
     initPublishers();
 
-    // Default high-level states
+    // Default states
     s_ = 0.1;
     v_ = 0.1;
     a_ = 0.1;
     l_ = 1.0;
     rl_ = 0.1;
+
+    s_NV_ = 150.0;    
+    v_NV_ = 0.0;
+    a_NV_ = 0.0;
+    l_NV_ = 2.0;
+
+    s_obs_ = 150.0;
 }
 
 void PlannerNode::initSubscribers()
@@ -29,6 +36,8 @@ void PlannerNode::initSubscribers()
     ego_acc_ = nh_.subscribe("/ego_acc_topic", 10, &PlannerNode::accSubscriberCallback, this);
     NV_pos_ = nh_.subscribe("/NV_pos_topic", 10, &PlannerNode::NVposSubscriberCallback, this);
     NV_vel_ = nh_.subscribe("/NV_vel_topic", 10, &PlannerNode::NVvelSubscriberCallback, this);
+    NV_acc_ = nh_.subscribe("/NV_acc_topic", 10, &PlannerNode::NVaccSubscriberCallback, this);
+    obs_pos_ = nh_.subscribe("/obs_pos_topic", 10, &PlannerNode::obsPosSubscriberCallback, this);
 }
 
 void PlannerNode::initPublishers()
@@ -78,39 +87,53 @@ void PlannerNode::NVvelSubscriberCallback(const geometry_msgs::Twist::ConstPtr &
     v_NV_ = sqrt(vx * vx + vy * vy);
 }
 
-void PlannerNode::NVpredict(Mpc &Opt)
+void PlannerNode::NVaccSubscriberCallback(const geometry_msgs::Twist::ConstPtr &nv_acc_msg)
 {
-    int T = Opt.getT();
-    double dt = Opt.getdt();
-
-    s_NV_pred_.clear(); // clear previous prediction
-    s1_1_front_.clear();
-    s1_1_rear_.clear();
-    s1_2_front_.clear();
-    s1_2_rear_.clear();    
-
-    s_NV_pred_.push_back(s_NV_);
-    for (int i=0; i < T; i++) {
-        s_NV_pred_.push_back(s_NV_pred_[i] + v_NV_ * dt); // Constant velocity same lane model                
-    }
-
-    for (int i=0; i < T; i++) {
-        if (l_NV_ < 1.5) {
-            // NV in lane 1
-            s1_1_front_.push_back(s_NV_pred_[i] + gap);
-            s1_1_rear_.push_back(s_NV_pred_[i] - gap);
-            s1_2_front_.push_back(-infn);
-            s1_2_rear_.push_back(infn);
-        }
-        else {
-            //NV in lane 2
-            s1_1_front_.push_back(-infn);
-            s1_1_rear_.push_back(infn);
-            s1_2_front_.push_back(s_NV_pred_[i] + gap);
-            s1_2_rear_.push_back(s_NV_pred_[i] - gap);
-        }
-    }
+    double ax = nv_acc_msg->linear.x;
+    double ay = nv_acc_msg->linear.y;
+    a_NV_ = sqrt(ax * ax + ay * ay);
 }
+
+void PlannerNode::obsPosSubscriberCallback(const geometry_msgs::Pose::ConstPtr &obs_pos_msg) 
+{
+    double x_obs = obs_pos_msg->position.x;
+    double y_obs = obs_pos_msg->position.y;
+    s_obs_ = -((x_obs - 85.235) * cos(0.003895) + (y_obs - 13.415) * sin(0.003895));
+}
+
+// void PlannerNode::NVpredict(Mpc &Opt)
+// {
+//     int T = Opt.getT();
+//     double dt = Opt.getdt();
+
+//     s_NV_pred_.clear(); // clear previous prediction
+//     s1_1_front_.clear();
+//     s1_1_rear_.clear();
+//     s1_2_front_.clear();
+//     s1_2_rear_.clear();    
+
+//     s_NV_pred_.push_back(s_NV_);
+//     for (int i=0; i < T; i++) {
+//         s_NV_pred_.push_back(s_NV_pred_[i] + v_NV_ * dt); // Constant velocity same lane model                
+//     }
+
+//     for (int i=0; i < T; i++) {
+//         if (l_NV_ < 1.5) {
+//             // NV in lane 1
+//             s1_1_front_.push_back(s_NV_pred_[i] + gap);
+//             s1_1_rear_.push_back(s_NV_pred_[i] - gap);
+//             s1_2_front_.push_back(-infn);
+//             s1_2_rear_.push_back(infn);
+//         }
+//         else {
+//             //NV in lane 2
+//             s1_1_front_.push_back(-infn);
+//             s1_1_rear_.push_back(infn);
+//             s1_2_front_.push_back(s_NV_pred_[i] + gap);
+//             s1_2_rear_.push_back(s_NV_pred_[i] - gap);
+//         }
+//     }
+// }
 
 void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
 {
@@ -124,8 +147,11 @@ void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
         X0.push_back(a_);
         X0.push_back(l_);
         X0.push_back(rl_);
-
-        ROS_INFO("MPC init state:- s: %f, v: %f, a: %f, l: %f", s_, v_, a_, l_);
+        ROS_INFO("Ego init:- s: %f, v: %f, a: %f, l: %f", s_, v_, a_, l_);
+        std::vector<double> X0_NV;
+        X0_NV.push_back(s_NV_);
+        X0_NV.push_back(v_NV_);
+        X0_NV.push_back(a_NV_);
 
         geometry_msgs::Pose plan_pos;
         geometry_msgs::Twist plan_vel;
@@ -133,9 +159,9 @@ void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
         geometry_msgs::Accel plan_ua;
         geometry_msgs::Pose plan_ul;        
         
-        this->NVpredict(Opt);
+        // this->NVpredict(Opt);
         
-        std::vector<double> plan = Opt.sol(X0, s1_1_front_, s1_1_rear_, s1_2_front_, s1_2_rear_);
+        std::vector<double> plan = Opt.sol(X0, X0_NV , s_obs_);
 
         plan_pos.position.x = plan[0]; // s
         plan_pos.position.y = plan[3]; // l
@@ -145,14 +171,10 @@ void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
         plan_ua.linear.x = plan[5]; // u_a
         plan_ul.position.y = plan[6]; // u_l
 
-        ROS_INFO("s_NV: %f, l_NV: %f, v_NV: %f", s_NV_, l_NV_, v_NV_);
+        ROS_INFO("NV init:- s_NV: %f, v_NV: %f, a_NV: %f, l_NV: %f", s_NV_, v_NV_, a_NV_, l_NV_);
         // ROS_INFO("Control:- u_a: %f, u_l %f", plan[5], plan[6]);
 
         this->dataLogger(logFile, plan);
-
-        // for (int i=0; i < s_NV_pred_.size(); i++) {
-        //     ROS_INFO("NV_pred: %f", s_NV_pred_[i]);
-        // }
 
         plan_pos_.publish(plan_pos);
         plan_vel_.publish(plan_vel);
@@ -171,7 +193,7 @@ void PlannerNode::dataLogger(std::ofstream &logFile, std::vector<double> &plan) 
     if (logFile.is_open()) {
         logFile << s_ << " " << v_ << " " << a_ << " " << l_ << " " << rl_ << " 11111 " << " "
         << plan[0] << " " << plan[1] << " " << plan[2] << " " << plan[3] << " " << plan[4] << " " << plan[5] << " " << plan[6] << " "
-        << "11111" << " " << s_NV_ << " " << l_NV_ << std::endl;
+        << "11111" << " " << s_NV_ << " " << l_NV_ << " " << "11111" << " " << s_obs_ << std::endl;
     }
     else std::cout << "Unable to open file" << std::endl;
 }

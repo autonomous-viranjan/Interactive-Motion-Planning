@@ -24,4 +24,4 @@ Mandatory lane change (MLC) scenario: a stationary truck in ego's lane. Ego vehi
 3. Run ros master `roscore`
 4. In the ROS workspace source `source devel/setup.bash` in two new terminals
 5. Run Ego vehicle via `rosrun expt1 Ego_vehicle.py`
-6. Run Planner via `rosrun expt1 planner`
+6. Run Planner via `rosrun expt1 planner1`

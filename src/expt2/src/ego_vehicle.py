@@ -57,7 +57,7 @@ class LowLevel:
         self.ax = 0.01
         self.ay = 0.01
         self.theta = np.arctan2(0.439, 112.71) # constant for straight road
-        self.theta_dot = 0.01 # not needed for straight road
+        # self.theta_dot = 0.01 # not needed for straight road
         # Default highlevel states
         self.s = 0.1
         self.v = 0.1
@@ -77,6 +77,8 @@ class LowLevel:
         self.nv_s = 150
         self.nv_l = 1
 
+        self.s_obs = 150
+
         self.pos_pub = rospy.Publisher("/ego_pos_topic", Pose, queue_size=10)
         self.vel_pub = rospy.Publisher("/ego_vel_topic", Twist, queue_size=10)
         self.acc_pub = rospy.Publisher("/ego_acc_topic", Accel, queue_size=10)
@@ -88,10 +90,7 @@ class LowLevel:
         self.ul_sub = rospy.Subscriber("/plan_ul_topic", Pose, self.ul_callback)
 
         self.NV_pos_sub = rospy.Subscriber("/NV_pos_topic", Pose, self.nv_pos_callback)
-
-        self.fig = plt.figure(figsize=(2, 4))
-        self.ln, = plt.plot(self.l, self.s, '*')
-        plt.axis([0, 3, 0, 50])
+        self.obs_pos_sub = rospy.Subscriber("/obs_pos_topic", Pose, self.obs_pos_callback)
         
     def pos_callback(self, pos_msg):
         self.s_ref = pos_msg.position.x
@@ -115,6 +114,11 @@ class LowLevel:
         y_NV = nv_pos_msg.position.y
         self.nv_s = -((x_NV - 85.235) * np.cos(0.003895) + (y_NV - 13.415) * np.sin(0.003895))
         self.nv_l = (-(x_NV - 85.235) * np.sin(0.003895) + (y_NV - 13.415) * np.cos(0.003895)) / self.lane_width + 1
+
+    def obs_pos_callback(self, obs_pos_msg):
+        x_obs = obs_pos_msg.position.x
+        y_obs = obs_pos_msg.position.y
+        self.s_obs =  -((x_obs - 85.235) * np.cos(0.003895) + (y_obs - 13.415) * np.sin(0.003895))     
     
     def sim2hl(self):
         """ 
@@ -171,6 +175,9 @@ class LowLevel:
     
     def nv_loc(self):
         return self.nv_s, self.nv_l
+    
+    def obs_loc(self):
+        return self.s_obs
     
     def run(self):
         # looped in game_loop()
@@ -249,7 +256,7 @@ recommended_spawn_points = world.get_map().get_spawn_points()
 
 transform = recommended_spawn_points[45]
 # transform.location += carla.Location(x=15, y=3.7)
-transform.location += carla.Location(x=40, y=0)
+transform.location += carla.Location(x=50, y=0)
 print('Spawned at %s' % transform)
 
 # Spawn the vehicle
@@ -318,6 +325,7 @@ def game_loop():
         # Data to plot
         s, l, s_ref, l_ref = low_level.ego_data()
         s_nv, l_nv = low_level.nv_loc()
+        s_obs = low_level.obs_loc()
 
         # Plot settings
         figure = plt.figure(figsize=(2, 10))
@@ -327,6 +335,7 @@ def game_loop():
         ego_point, = plt.plot(l, s, 'sb')
         ref_point, = plt.plot(l_ref, s_ref, 'Pg')
         nv_point, = plt.plot(l_nv, s_nv, 'sr')
+        obs_point, = plt.plot(1, s_obs, 'Xr')
         plt.title("Tracking")
         plt.xlabel("Lane")
         plt.ylabel("Road length [m]")
@@ -356,12 +365,12 @@ def game_loop():
                     if isinstance(tl, carla.TrafficLight):
                         tl.set_state(carla.TrafficLightState.Green)
                         tl.freeze(True)                      
-            if t == 650:
-                # set traffic light to red            
-                for tl in world.get_actors().filter('traffic.*'):
-                    if isinstance(tl, carla.TrafficLight):
-                        tl.set_state(carla.TrafficLightState.Red)
-                        tl.freeze(True)  
+            # if t == 650:
+            #     # set traffic light to red            
+            #     for tl in world.get_actors().filter('traffic.*'):
+            #         if isinstance(tl, carla.TrafficLight):
+            #             tl.set_state(carla.TrafficLightState.Red)
+            #             tl.freeze(True)  
             
             """ ------- Vehicle control ---------- """
 
@@ -375,16 +384,16 @@ def game_loop():
                 vehicle_control.throttle = 0
             
             if u_a < 0:
-                vehicle_control.brake = u_a
+                vehicle_control.brake = 0.8
             else:
                 vehicle_control.brake = 0
             
             vehicle_control.steer = u_steer
 
             # Stop vehicle after this many time steps           
-            if t > 650:
+            if t > 900:
                 vehicle_control.throttle = 0
-                vehicle_control.brake = -1
+                vehicle_control.brake = 1
 
              # Apply the control to the car
             vehicle.apply_control(vehicle_control)       
@@ -395,9 +404,11 @@ def game_loop():
             # Updating data values
             s, l, s_ref, l_ref = low_level.ego_data()
             s_nv, l_nv = low_level.nv_loc()
+            s_obs = low_level.obs_loc()
             ego_point.set_data(l, s)
             ref_point.set_data(l_ref, s_ref)
             nv_point.set_data(l_nv, s_nv)
+            obs_point.set_data(1, s_obs)
 
             figure.gca().relim()
             figure.gca().autoscale_view(False, True) # rescale only y-axis         

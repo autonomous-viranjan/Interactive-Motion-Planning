@@ -7,7 +7,7 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Accel.h>
 
-#include "mpc.h"
+#include "jointmpc.h"
 #include <cmath>
 #include <vector>
 
@@ -28,6 +28,8 @@ private:
     ros::Subscriber ego_acc_;
     ros::Subscriber NV_pos_;
     ros::Subscriber NV_vel_;
+    ros::Subscriber NV_acc_;
+    ros::Subscriber obs_pos_;
 
     ros::Publisher plan_pos_;
     ros::Publisher plan_vel_;
@@ -43,8 +45,14 @@ private:
     void accSubscriberCallback(const geometry_msgs::Accel::ConstPtr &acc_msg);
     void NVposSubscriberCallback(const geometry_msgs::Pose::ConstPtr &nv_pos_msg);
     void NVvelSubscriberCallback(const geometry_msgs::Twist::ConstPtr &nv_vel_msg);
+    void NVaccSubscriberCallback(const geometry_msgs::Twist::ConstPtr &nv_acc_msg);
+    void obsPosSubscriberCallback(const geometry_msgs::Pose::ConstPtr &obs_pos_msg);
 
-    void NVpredict(Mpc &Opt);
+    // void NVpredict(Mpc &Opt);
+
+    double lane_width = 3.6;
+    double gap = 10.0;
+    double infn = 1e6;
 
     // states
     double s_;
@@ -53,17 +61,17 @@ private:
     double l_;
     double rl_;
 
-    double lane_width = 3.6;
-    double gap = 10.0;
-    double infn = 1e6;
-
     // NV
-    double s_NV_ = 150.0;
-    double l_NV_ = 1.0;
-    double v_NV_ = 0.0;
+    double s_NV_;    
+    double v_NV_;
+    double a_NV_;
+    double l_NV_;
+
     std::vector<double> s_NV_pred_;
     std::vector<double> s1_1_front_;
     std::vector<double> s1_1_rear_;
     std::vector<double> s1_2_front_;
     std::vector<double> s1_2_rear_;
+
+    double s_obs_;
 };

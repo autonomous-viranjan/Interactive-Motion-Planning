@@ -269,9 +269,8 @@ class World(object):
             
             recommended_spawn_points = self.map.get_spawn_points()
             transform = recommended_spawn_points[46]
-            transform.location += carla.Location(x=-20, y=-3.6)
-            # transform.location += carla.Location(x=-20, y=0)
-            # transform.location += carla.Location(x=20)
+            # transform.location += carla.Location(x=-20, y=-3.6)
+            transform.location += carla.Location(x=20)
             
             spawn_point = transform
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)
@@ -1297,9 +1296,10 @@ def game_loop(args):
 
             position = world.player.get_location()
             velocity = world.player.get_velocity()
+            acceleration = world.player.get_acceleration()
             # print(position)
             try:
-                nv_publisher(position, velocity)
+                nv_publisher(position, velocity, acceleration)
             except rospy.ROSInterruptException:
                 pass
 
@@ -1396,9 +1396,10 @@ def main():
         print('\nCancelled by user. Bye!')
 
 
-def nv_publisher(position, velocity):
+def nv_publisher(position, velocity, acceleration):
     pos_pub = rospy.Publisher("/NV_pos_topic", Pose, queue_size=10)
     vel_pub = rospy.Publisher("/NV_vel_topic", Twist, queue_size=10)
+    acc_pub = rospy.Publisher("/NV_acc_topic", Twist, queue_size=10)
     rospy.init_node("NV", anonymous=True)
 
     rate = rospy.Rate(20)
@@ -1411,11 +1412,18 @@ def nv_publisher(position, velocity):
     vehicle_vel = Twist()
     vehicle_vel.linear.x = velocity.x
     vehicle_vel.linear.y = velocity.y
+
+    vehicle_acc = Twist()
+    vehicle_acc.linear.x = acceleration.x
+    vehicle_acc.linear.y = acceleration.y
     
     pos_pub.publish(vehicle_pose)
     vel_pub.publish(vehicle_vel)
-    rospy.loginfo(vehicle_pose)
-    rospy.loginfo(vehicle_vel)
+    acc_pub.publish(vehicle_acc)
+    # rospy.loginfo(vehicle_pose)
+    # rospy.loginfo(vehicle_vel)
+    rospy.loginfo(vehicle_acc)
+
     rate.sleep()
     
 

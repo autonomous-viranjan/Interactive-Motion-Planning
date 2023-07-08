@@ -9,7 +9,7 @@
 #include <vector>
 #include "/home/optimal-student/vb/gurobi10.0.1_linux64/gurobi1001/linux64/include/gurobi_c++.h"
 
-std::vector<double> Mpc::sol(std::vector<double> &initial_state, 
+std::vector<double> Mpc::sol(std::vector<double> &X0, 
                             std::vector<double> &s1_1_front, std::vector<double> &s1_1_rear,
                             std::vector<double> &s1_2_front, std::vector<double> &s1_2_rear,
                             double &s_obs)
@@ -58,11 +58,11 @@ std::vector<double> Mpc::sol(std::vector<double> &initial_state,
         }
         
         // initial state [s0 v0 a0 l0 rl0]'
-        model.addConstr(X[0][0] == initial_state[0]);
-        model.addConstr(X[1][0] == initial_state[1]);
-        model.addConstr(X[2][0] == initial_state[2]);
-        model.addConstr(X[3][0] == initial_state[3]);
-        model.addConstr(X[4][0] == initial_state[4]);
+        model.addConstr(X[0][0] == X0[0]);
+        model.addConstr(X[1][0] == X0[1]);
+        model.addConstr(X[2][0] == X0[2]);
+        model.addConstr(X[3][0] == X0[3]);
+        model.addConstr(X[4][0] == X0[4]);
 
         // Define constraints
         for (int k = 0; k < T; k++) {
@@ -84,8 +84,8 @@ std::vector<double> Mpc::sol(std::vector<double> &initial_state,
             model.addConstr(X[0][k] - (s_obs + 5) + eps[1][k] - bigM * beta[1][k] - bigM * mu[0][k] >= -2 * bigM);
             model.addConstr((s_obs - 10) - X[0][k] + eps[1][k] + bigM * beta[1][k] - bigM * mu[0][k] >= -bigM);
             /* in lane 2 */
-            model.addConstr(X[0][k] - s1_2_front[k] - bigM * beta[0][k] - bigM * mu[1][k] >= -2 * bigM);
-            model.addConstr(s1_2_rear[k] - X[0][k] + bigM * beta[0][k] - bigM * mu[1][k] >= -bigM);
+            model.addConstr(X[0][k] - s1_2_front[k] + eps[0][k] - bigM * beta[0][k] - bigM * mu[1][k] >= -2 * bigM);
+            model.addConstr(s1_2_rear[k] - X[0][k] + eps[0][k] + bigM * beta[0][k] - bigM * mu[1][k] >= -bigM);
         }
 
         // Define the objective
@@ -125,14 +125,14 @@ std::vector<double> Mpc::sol(std::vector<double> &initial_state,
         }
         else {
             // vehicle slow
-            plan.push_back(initial_state[0]);      
+            plan.push_back(X0[0]);      
             plan.push_back(2.5);      
             plan.push_back(1.0);
-            plan.push_back(initial_state[3]);
+            plan.push_back(X0[3]);
             plan.push_back(0.0);
 
             plan.push_back(1.0);
-            plan.push_back(initial_state[3]);
+            plan.push_back(X0[3]);
         }        
 
     } catch(GRBException e) {

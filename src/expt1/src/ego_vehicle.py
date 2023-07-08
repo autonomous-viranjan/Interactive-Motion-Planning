@@ -341,7 +341,7 @@ def game_loop():
         ego_point, = plt.plot(l, s, 'sb')
         ref_point, = plt.plot(l_ref, s_ref, 'Pg')
         nv_point, = plt.plot(l_nv, s_nv, 'sr')
-        obs_point, = plt.plot(1, s_obs, 'xr')
+        obs_point, = plt.plot(1, s_obs, 'Xr')
         plt.title("Tracking")
         plt.xlabel("Lane")
         plt.ylabel("Road length [m]")

@@ -7,9 +7,7 @@
 class Mpc
 {
 public:    
-    std::vector<double> sol(std::vector<double> &initial_state, 
-                            std::vector<double> &s1_1_front, std::vector<double> &s1_1_rear,
-                            std::vector<double> &s1_2_front, std::vector<double> &s1_2_rear);
+    std::vector<double> sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs);
 
     int getT() {
         return T;
@@ -27,13 +25,15 @@ private:
 
     // Simulation parameters
     int T = 20; // horizon length
-    const int nx = 5; // number of states
-    const int nu = 2; // number of inputs
+    int nx = 5; // number of states
+    int nu = 2; // number of inputs
+    int nx_nv = 3; // NV model # states
+    int nu_nv = 1; // NV model # controls
     double dt = 0.2; // sampling time
     double vref = 10.0; // reference speed
     int lref = 1;
     int lanes = 2;
-    int obs_count = 1;
+    int obs_count = 2;
 
     double qv = 10.0;    
     double qa = 30.0;
@@ -55,8 +55,5 @@ private:
     double tau = 0.275;
     double zeta = 1;
     double w_n = 1.091;
-    double K = 1.0;
-
-    // // Obstacle
-    // int obs = 80;  
+    double K = 1.0; 
 };

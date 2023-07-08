@@ -85,7 +85,8 @@ void PlannerNode::NVvelSubscriberCallback(const geometry_msgs::Twist::ConstPtr &
     v_NV_ = sqrt(vx * vx + vy * vy);
 }
 
-void PlannerNode::obsPosSubscriberCallback(const geometry_msgs::Pose::ConstPtr &obs_pos_msg) {
+void PlannerNode::obsPosSubscriberCallback(const geometry_msgs::Pose::ConstPtr &obs_pos_msg) 
+{
     double x_obs = obs_pos_msg->position.x;
     double y_obs = obs_pos_msg->position.y;
     s_obs_ = -((x_obs - 85.235) * cos(0.003895) + (y_obs - 13.415) * sin(0.003895));
@@ -184,7 +185,7 @@ void PlannerNode::dataLogger(std::ofstream &logFile, std::vector<double> &plan) 
     if (logFile.is_open()) {
         logFile << s_ << " " << v_ << " " << a_ << " " << l_ << " " << rl_ << " 11111 " << " "
         << plan[0] << " " << plan[1] << " " << plan[2] << " " << plan[3] << " " << plan[4] << " " << plan[5] << " " << plan[6] << " "
-        << "11111" << " " << s_NV_ << " " << l_NV_ << std::endl;
+        << "11111" << " " << s_NV_ << " " << l_NV_ << " " << "11111" << " " << s_obs_<< std::endl;
     }
     else std::cout << "Unable to open file" << std::endl;
 }

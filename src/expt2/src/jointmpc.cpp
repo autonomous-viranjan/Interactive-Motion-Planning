@@ -3,18 +3,16 @@
     EMC2 Lab Clemson University
 */
 
-#include "include/mpc.h"
+#include "include/jointmpc.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include "/home/optimal-student/vb/gurobi10.0.1_linux64/gurobi1001/linux64/include/gurobi_c++.h"
 
-std::vector<double> Mpc::sol(std::vector<double> &initial_state, 
-                            std::vector<double> &s1_1_front, std::vector<double> &s1_1_rear,
-                            std::vector<double> &s1_2_front, std::vector<double> &s1_2_rear)
+std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs)
 {
     /*
-        MPC input: current state (initial state), NV position
+        Joint MPC input: current state of Ego and NV
         MPC output: planned next state
     */
     std::vector<double> plan;
@@ -25,43 +23,62 @@ std::vector<double> Mpc::sol(std::vector<double> &initial_state,
         model.set("OutputFlag", "0");    
 
         GRBVar X[nx][T];
+        GRBVar Xnv[nx_nv][T];
         GRBVar U[nu][T];
+        GRBVar Unv[nu_nv][T];
         GRBVar mu[lanes][T];
         GRBVar beta[obs_count][T];
-        GRBVar eps[1][T];
+        GRBVar eps[2][T];
 
         // Define the variables
         for (int k = 0; k < T; k++) {
-            X[0][k] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "s_" + std::to_string(k));
-            X[1][k] = model.addVar(0.0, vmax, 0.0, GRB_CONTINUOUS, "v_" + std::to_string(k));
-            X[2][k] = model.addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "a_" + std::to_string(k));
-            X[3][k] = model.addVar(lmin, lmax, 0.0, GRB_CONTINUOUS, "l_" + std::to_string(k));
-            X[4][k] = model.addVar(-5.0, 5.0, 0.0, GRB_CONTINUOUS, "rl_" + std::to_string(k));
-            U[0][k] = model.addVar(ua_min, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "ua_" + std::to_string(k));
-            U[1][k] = model.addVar(1, 2, 0.0, GRB_INTEGER, "ul_" + std::to_string(k));
-            mu[0][k] = model.addVar(0, 1, 0.0, GRB_BINARY, "mu1_" + std::to_string(k));
-            mu[1][k] = model.addVar(0, 1, 0.0, GRB_BINARY, "mu2_" + std::to_string(k));
-            for (int o=0; o < obs_count; o++) {
-                beta[o][k] = model.addVar(0, 1, 0.0, GRB_BINARY, "beta_" + std::to_string(k));
-            }
+            X[0][k] = model.addVar(-5.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+            X[1][k] = model.addVar(0.0, vmax, 0.0, GRB_CONTINUOUS);
+            X[2][k] = model.addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+            X[3][k] = model.addVar(lmin, lmax, 0.0, GRB_CONTINUOUS);
+            X[4][k] = model.addVar(-5.0, 5.0, 0.0, GRB_CONTINUOUS);
+
+            Xnv[0][k] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+            Xnv[1][k] = model.addVar(0.0, vmax, 0.0, GRB_CONTINUOUS);
+            Xnv[2][k] = model.addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+
+            U[0][k] = model.addVar(ua_min, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+            U[1][k] = model.addVar(1, 2, 0.0, GRB_INTEGER);
+
+            Unv[0][k] = model.addVar(ua_min, -ua_min, 0.0, GRB_CONTINUOUS);
+
+            mu[0][k] = model.addVar(0, 1, 0.0, GRB_BINARY);
+            mu[1][k] = model.addVar(0, 1, 0.0, GRB_BINARY);
+            beta[0][k] = model.addVar(0, 1, 0.0, GRB_BINARY);
+            beta[1][k] = model.addVar(0, 1, 0.0, GRB_BINARY);
             eps[0][k] = model.addVar(0, 5, 0.0, GRB_CONTINUOUS);
+            eps[1][k] = model.addVar(0, 5, 0.0, GRB_CONTINUOUS);
         }
 
         // Define the dynamics
         for (int k = 0; k < T - 1; k++) {
+            // Ego
             model.addConstr(X[0][k + 1] == X[0][k] + X[1][k] * dt);
             model.addConstr(X[1][k + 1] == X[1][k] + X[2][k] * dt);
-            model.addConstr(X[2][k + 1] == X[2][k] + (-X[2][k]/tau + U[0][k]/tau) * dt);
+            model.addConstr(X[2][k + 1] == X[2][k] + (-X[2][k] / tau + U[0][k] / tau) * dt);
             model.addConstr(X[3][k + 1] == X[3][k] + X[4][k] * dt);
             model.addConstr(X[4][k + 1] == X[4][k] + (-w_n * w_n * X[3][k] - 2 * zeta * w_n * X[4][k] + K * w_n * w_n * U[1][k]) * dt);
+            // NV as assumed by Ego
+            model.addConstr(Xnv[0][k + 1] == Xnv[0][k] + Xnv[1][k] * dt);
+            model.addConstr(Xnv[1][k + 1] == Xnv[1][k] + Xnv[2][k] * dt);
+            model.addConstr(Xnv[2][k + 1] == Xnv[2][k] + (-Xnv[2][k] / tau + Unv[0][k] / tau) * dt);            
         }
         
-        // initial state [s0 v0 a0 l0 rl0]'
-        model.addConstr(X[0][0] == initial_state[0]);
-        model.addConstr(X[1][0] == initial_state[1]);
-        model.addConstr(X[2][0] == initial_state[2]);
-        model.addConstr(X[3][0] == initial_state[3]);
-        model.addConstr(X[4][0] == initial_state[4]);
+        // Ego initial state [s0 v0 a0 l0 rl0]'
+        model.addConstr(X[0][0] == X0[0]);
+        model.addConstr(X[1][0] == X0[1]);
+        model.addConstr(X[2][0] == X0[2]);
+        model.addConstr(X[3][0] == X0[3]);
+        model.addConstr(X[4][0] == X0[4]);
+        // NV (actual) initial state
+        model.addConstr(Xnv[0][0] == X0_NV[0]);
+        model.addConstr(Xnv[1][0] == X0_NV[1]);
+        model.addConstr(Xnv[2][0] == X0_NV[2]);
 
         // Define constraints
         for (int k = 0; k < T; k++) {
@@ -77,20 +94,28 @@ std::vector<double> Mpc::sol(std::vector<double> &initial_state,
             model.addConstr(X[3][k] - bigM * mu[1][k] <= 1 + delta);            
             // Collision avoidance
             // in lane 1
-            model.addConstr(X[0][k] - s1_1_front[k] + eps[0][k] - bigM * beta[0][k] - bigM * mu[0][k] >= -2 * bigM);
-            model.addConstr(s1_1_rear[k] - X[0][k] + eps[0][k] + bigM * beta[0][k] - bigM * mu[0][k] >= -bigM);
+            // model.addConstr(X[0][k] - s1_1_front[k] + eps[0][k] - bigM * beta[0][k] - bigM * mu[0][k] >= -2 * bigM);
+            // model.addConstr(s1_1_rear[k] - X[0][k] + eps[0][k] + bigM * beta[0][k] - bigM * mu[0][k] >= -bigM);
+            //// obstacle
+            model.addConstr(X[0][k] - (s_obs + 5) + eps[1][k] - bigM * beta[1][k] - bigM * mu[0][k] >= -2 * bigM);
+            model.addConstr((s_obs - 10) - X[0][k] + eps[1][k] + bigM * beta[1][k] - bigM * mu[0][k] >= -bigM);
             // in lane 2
-            model.addConstr(X[0][k] - s1_2_front[k] - bigM * beta[0][k] - bigM * mu[1][k] >= -2 * bigM);
-            model.addConstr(s1_2_rear[k] - X[0][k] + bigM * beta[0][k] - bigM * mu[1][k] >= -bigM);
+            // model.addConstr(X[0][k] - s1_2_front[k] - bigM * beta[0][k] - bigM * mu[1][k] >= -2 * bigM);
+            // model.addConstr(s1_2_rear[k] - X[0][k] + bigM * beta[0][k] - bigM * mu[1][k] >= -bigM);
+            model.addConstr(X[0][k] - (Xnv[0][k] + 5) - bigM * beta[0][k] - bigM * mu[1][k] >= -2 * bigM);
+            model.addConstr((Xnv[0][k] - 5) - X[0][k] + bigM * beta[0][k] - bigM * mu[1][k] >= -bigM);
         }
 
         // Define the objective
         GRBQuadExpr obj = 0;
         for (int k = 0; k < T; k++) {    
-            obj += qv * (X[1][k] * X[1][k] - 2 * X[1][k] * vref) + qa * (X[2][k] * X[2][k]) + qa * (U[0][k] * U[0][k]) + 1e5 * eps[0][k] * eps[0][k];
+            obj += qv * (X[1][k] * X[1][k] - 2 * X[1][k] * vref) + qa * (X[2][k] * X[2][k]) + qa * (U[0][k] * U[0][k]) + 1e5 * eps[0][k] * eps[0][k] + 1e5 * eps[1][k] * eps[1][k]
+                + qv * (Xnv[1][k] * Xnv[1][k] - 2 * Xnv[1][k] * vref) + qa * (Xnv[2][k] * Xnv[2][k]) + qa * (Unv[0][k] * Unv[0][k]);
         }
+        //// delta costs
         for (int k = 1; k < T; k++) {
-            obj += qul * (U[1][k] - U[1][k-1]) * (U[1][k] - U[1][k-1]) + qul * (X[3][k] - X[3][k-1]) * (X[3][k] - X[3][k-1]) + qda * (X[2][k] - X[2][k-1]) * (X[2][k] - X[2][k-1]);
+            obj += qul * (U[1][k] - U[1][k-1]) * (U[1][k] - U[1][k-1]) + qul * (X[3][k] - X[3][k-1]) * (X[3][k] - X[3][k-1]) + qda * (X[2][k] - X[2][k-1]) * (X[2][k] - X[2][k-1])
+                + qda * (Xnv[2][k] - Xnv[2][k-1]) * (Xnv[2][k] - Xnv[2][k-1]);
         }
         model.setObjective(obj, GRB_MINIMIZE);
         // some settings
@@ -121,14 +146,14 @@ std::vector<double> Mpc::sol(std::vector<double> &initial_state,
         }
         else {
             // vehicle slow
-            plan.push_back(initial_state[0]);      
+            plan.push_back(X0[0]);      
             plan.push_back(2.5);      
             plan.push_back(1.0);
-            plan.push_back(initial_state[3]);
+            plan.push_back(X0[3]);
             plan.push_back(0.0);
 
             plan.push_back(1.0);
-            plan.push_back(initial_state[3]);
+            plan.push_back(X0[3]);
         }        
 
     } catch(GRBException e) {

@@ -38,7 +38,8 @@ add_dependencies(planner2 expt2_generate_messages_cpp)
 
 # Python files
 catkin_install_python(PROGRAMS
-  src/Ego_vehicle.py
+  src/ego_vehicle.py
   src/NV.py
+  src/stopped_vehicle.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
