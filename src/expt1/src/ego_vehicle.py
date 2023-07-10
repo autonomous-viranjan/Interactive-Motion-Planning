@@ -261,7 +261,7 @@ if vehicle_bp.has_attribute('color'):
 
 transform = recommended_spawn_points[45]
 # transform.location += carla.Location(x=15, y=3.7)
-transform.location += carla.Location(x=50, y=0)
+transform.location += carla.Location(x=20, y=0)
 print('Spawned at %s' % transform)
 
 # Spawn the vehicle

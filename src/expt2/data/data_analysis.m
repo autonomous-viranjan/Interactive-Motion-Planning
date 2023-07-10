@@ -3,16 +3,22 @@
 
 clear, clc, close all
 
-log_data = load("log_nv_accelerated.txt");
+% log_data = load("log_jb3.txt");
+% log_data = load("log_vb2.txt");
+log_data = load("log_az2.txt");
 %%
-start = 197;
-fin = 769;
+% start = 108;
+% fin = 491;
+% start = 95;
+% fin = 742;
+start = 210;
+fin = 909;
 X = log_data(start:fin, 1:5);
 X_ref = log_data(start:fin, 7:11);
 Ua = log_data(start:fin, 12);
 Ul = log_data(start:fin, 13);
-X_nv = log_data(start:fin, 15:16);
-X_obs = log_data(start:fin, 18);
+X_nv = log_data(start:fin, 15:18);
+X_obs = log_data(start:fin, 20);
 roadlength = 140;
 %%
 figure(1)
@@ -21,7 +27,7 @@ hold on
 plot([1.5 1.5],[0 roadlength],'--','LineWidth',2,'Color',[0.5 0.5 0.5]) % lane marking
 plot(X_ref(:,4),X_ref(:,1),'-.k')
 plot(X(:,4),X(:,1),'b')
-plot(X_nv(:,2),X_nv(:,1),'r')
+plot(X_nv(:,4),X_nv(:,1),'r')
 rectangle('Position',[0.5 (X_obs(1)-5) 0.5 5],'FaceColor',[1 0.8 0.8])
 xlabel('Lane number')
 ylabel('Road length [m]')
@@ -39,7 +45,7 @@ surface([l;l],[s;s],[z;z],[col;col],...
         'facecol','no',...
         'edgecol','interp',...
         'linew',4);
-l_nv = X_nv(:,2)';
+l_nv = X_nv(:,4)';
 s_nv = X_nv(:,1)';
 surface([l_nv;l_nv],[s_nv;s_nv],[z;z],[col;col],...
         'facecol','no',...
@@ -49,6 +55,7 @@ rectangle('Position',[0.5 (X_obs(1)-5) 0.5 5],'FaceColor',[1 0.9 0.9])
 xlabel('Lane number')
 ylabel('Road length [m]')
 legend('', 'Ego', 'NV')
+title('Trajectory')
 %%
 RMSE = rmse(X_ref, X);
 %%
@@ -77,5 +84,8 @@ legend('Commanded acceleration','Ego acceleration','Reference acceleration')
 %%
 figure(5)
 plot(X(:,2))
+hold on
+plot(X_nv(:,2))
 ylabel('m/s')
-legend('Ego Velocity')
+legend('Ego', 'NV')
+title('Speed')

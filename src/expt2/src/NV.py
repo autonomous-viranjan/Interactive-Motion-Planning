@@ -270,7 +270,7 @@ class World(object):
             recommended_spawn_points = self.map.get_spawn_points()
             transform = recommended_spawn_points[46]
             # transform.location += carla.Location(x=-20, y=-3.6)
-            transform.location += carla.Location(x=20)
+            transform.location += carla.Location(x=10)
             
             spawn_point = transform
             self.player = self.world.try_spawn_actor(blueprint, spawn_point)

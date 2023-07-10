@@ -33,7 +33,7 @@ std::vector<double> Mpc::sol(std::vector<double> &X0,
 
         // Define the variables
         for (int k = 0; k < T; k++) {
-            X[0][k] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "s_" + std::to_string(k));
+            X[0][k] = model.addVar(-5.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "s_" + std::to_string(k));
             X[1][k] = model.addVar(0.0, vmax, 0.0, GRB_CONTINUOUS, "v_" + std::to_string(k));
             X[2][k] = model.addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS, "a_" + std::to_string(k));
             X[3][k] = model.addVar(lmin, lmax, 0.0, GRB_CONTINUOUS, "l_" + std::to_string(k));
