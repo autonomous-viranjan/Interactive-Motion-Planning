@@ -8,12 +8,12 @@ find_package(catkin REQUIRED COMPONENTS
   genmsg
 )
 
-## System dependencies are found with CMake's conventions
+## Gurobi deps
 set(GUROBI_FOLDER "/home/optimal-student/vb/gurobi10.0.1_linux64/gurobi1001/linux64")
 set(GUROBI_LIB_DIRS ${GUROBI_FOLDER}/lib)  
 set(GUROBI_LIBS gurobi_g++5.2 gurobi100)
 set(GUROBI_INCLUDE_DIRS ${GUROBI_FOLDER}/include)
-
+# Required sources
 set(planner1_SOURCES src/mpc.cpp)
 
 generate_messages(
