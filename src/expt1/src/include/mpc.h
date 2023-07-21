@@ -2,7 +2,11 @@
 
 #include <vector>
 #include <iostream>
-// #include <eigen3/Eigen/Dense>
+
+// GLOBAL VARS
+const int T = 20; // horizon length
+const double dt = 0.2; // sampling time
+const double vref = 10.0; // reference speed
 
 class Mpc
 {
@@ -12,13 +16,6 @@ public:
                             std::vector<double> &s1_2_front, std::vector<double> &s1_2_rear,
                             double &s_obs);
 
-    int getT() {
-        return T;
-    }
-    double getdt() {
-        return dt;
-    }
-
     void write(const char* s) {
         std::cout << s << std::endl;
     }
@@ -27,11 +24,9 @@ public:
 private:
 
     // Simulation parameters
-    int T = 20; // horizon length
-    const int nx = 5; // number of states
-    const int nu = 2; // number of inputs
-    double dt = 0.2; // sampling time
-    double vref = 10.0; // reference speed
+    int nx = 5; // number of states
+    int nu = 2; // number of inputs
+
     int lref = 1;
     int lanes = 2;
     int obs_count = 2;
@@ -53,7 +48,8 @@ private:
     double b2 = 4.83;
 
     // Model params
-    double tau = 0.275;
+    // double tau = 0.275;
+    double tau = 0.1;
     double zeta = 1;
     double w_n = 1.091;
     double K = 1.0; 

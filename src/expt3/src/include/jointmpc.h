@@ -3,6 +3,19 @@
 #include <vector>
 #include <iostream>
 
+// GLOBAL PARAMS
+
+const int nx_nv = 3; // NV model # states
+const int nu_nv = 1; // NV model # controls
+const double dt = 0.2; // sampling time
+const double vref = 10.0; // reference speed
+
+// Model params
+const double tau = 0.275;
+const double zeta = 1;
+const double w_n = 1.091;
+const double K = 1.0; 
+
 class Mpc
 {
 public:    
@@ -19,10 +32,7 @@ private:
     int T = 20; // horizon length
     int nx = 5; // number of states
     int nu = 2; // number of inputs
-    int nx_nv = 3; // NV model # states
-    int nu_nv = 1; // NV model # controls
-    double dt = 0.2; // sampling time
-    double vref = 10.0; // reference speed
+    
     int lref = 1;
     int lanes = 2;
     int obs_count = 2;
@@ -42,11 +52,4 @@ private:
     double b1 = 2.0;
     double m2 = -0.1208;
     double b2 = 4.83;
-
-    // Model params
-    // double tau = 0.275;
-    double tau = 0.1;
-    double zeta = 1;
-    double w_n = 1.091;
-    double K = 1.0; 
 };

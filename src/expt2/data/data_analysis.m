@@ -5,14 +5,17 @@ clear, clc, close all
 
 % log_data = load("log_jb3.txt");
 % log_data = load("log_vb2.txt");
-log_data = load("log_az2.txt");
+% log_data = load("log_az2.txt");
+log_data = load("log.txt");
 %%
 % start = 108;
 % fin = 491;
 % start = 95;
 % fin = 742;
-start = 210;
-fin = 909;
+% start = 210;
+% fin = 909;
+start = 74;
+fin = 779;
 X = log_data(start:fin, 1:5);
 X_ref = log_data(start:fin, 7:11);
 Ua = log_data(start:fin, 12);

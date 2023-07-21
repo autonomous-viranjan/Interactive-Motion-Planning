@@ -178,12 +178,8 @@ class LowLevel:
     def nv_loc(self):
         return self.nv_s, self.nv_l
     
-    def obs_loc(self):
-        # obs_pos = veh.get_location()
-        # self.s_obs = -((obs_pos.x - 85.235) * np.cos(0.003895) + (obs_pos.y - 13.415) * np.sin(0.003895))
-        # self.s_obs = -(obs_pos.x - 85.235)
+    def obs_loc(self):        
         return self.s_obs
-        # return obs_pos.x
     
     def run(self):
         # looped in game_loop()
@@ -387,7 +383,7 @@ def game_loop():
             if u_a >= 0:
                 vehicle_control.throttle = u_a
             else:
-                vehicle_control.throttle = 0
+                vehicle_control.throttle = 0.5
             
             if u_a < 0:
                 vehicle_control.brake = 0.8
