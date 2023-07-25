@@ -2,7 +2,7 @@
 Mandatory lane change (MLC) scenario: a stationary truck in ego's lane. Ego vehicle needs to negotiate with human driven vehicle to change lane.
 - aiMPC for high-level motion planning
   - Based on:
-    Viranjan Bhattacharyya, and Ardalan Vahidi. "Automated Vehicle Highway Merging: Motion Planning via Adaptive Interactive Mixed-Integer MPC." In 2023 American Control Conference (ACC), pp. 1141-1146. IEEE, 2023.
+    Viranjan Bhattacharyya and Ardalan Vahidi. "Automated Vehicle Highway Merging: Motion Planning via Adaptive Interactive Mixed-Integer MPC." In 2023 American Control Conference (ACC), pp. 1141-1146. IEEE, 2023.
   - Added feature: Auto Lane Selection
 - PID controller for low-level control
 
