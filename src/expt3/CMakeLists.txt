@@ -14,7 +14,7 @@ set(GUROBI_LIBS gurobi_g++5.2 gurobi100)
 set(GUROBI_INCLUDE_DIRS ${GUROBI_FOLDER}/include)
 
 # Required sources
-set(planner3_SOURCES src/jointmpc.cpp)
+set(planner3_SOURCES src/jointmpc.cpp src/imputer.cpp)
 
 # generate_messages(
 #   DEPENDENCIES

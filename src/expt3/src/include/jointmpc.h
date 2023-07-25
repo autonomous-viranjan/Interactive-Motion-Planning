@@ -19,7 +19,7 @@ const double K = 1.0;
 class Mpc
 {
 public:    
-    std::vector<double> sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs);
+    std::vector<double> sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs, double &alpha_v, double &alpha_a);
 
     void write(const char* s) {
         std::cout << s << std::endl;

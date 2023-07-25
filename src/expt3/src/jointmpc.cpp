@@ -8,7 +8,7 @@
 #include <fstream>
 #include "/home/optimal-student/vb/gurobi10.0.1_linux64/gurobi1001/linux64/include/gurobi_c++.h"
 
-std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs)
+std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs, double &alpha_v, double &alpha_a)
 {
     /*
         Joint MPC input: current state of Ego and NV
@@ -108,8 +108,8 @@ std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV
         // Define the objective
         GRBQuadExpr obj = 0;
         for (int k = 0; k < T; k++) {    
-            obj += qv * (X[1][k] * X[1][k] - 2 * X[1][k] * vref) + qa * (X[2][k] * X[2][k]) + qa * (U[0][k] * U[0][k]) + 1e5 * eps[0][k] * eps[0][k] + 1e5 * eps[1][k] * eps[1][k]
-                + qv * (Xnv[1][k] * Xnv[1][k] - 2 * Xnv[1][k] * vref) + qa * (Xnv[2][k] * Xnv[2][k]) + qa * (Unv[0][k] * Unv[0][k]);
+            obj += alpha_v * (X[1][k] * X[1][k] - 2 * X[1][k] * vref) + alpha_a * (X[2][k] * X[2][k]) + alpha_a * (U[0][k] * U[0][k]) + 1e5 * eps[0][k] * eps[0][k] + 1e5 * eps[1][k] * eps[1][k]
+                + alpha_v * (Xnv[1][k] * Xnv[1][k] - 2 * Xnv[1][k] * vref) + alpha_a * (Xnv[2][k] * Xnv[2][k]) + alpha_a * (Unv[0][k] * Unv[0][k]);
         }
         //// delta costs
         for (int k = 1; k < T; k++) {

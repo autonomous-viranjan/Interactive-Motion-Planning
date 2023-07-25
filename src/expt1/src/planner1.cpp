@@ -3,28 +3,19 @@
     EMC2 Lab Clemson University
 */
 
-#include "include/node.h"
+#include "include/node1.h"
 #include "include/mpc.h"
 #include <cstdlib>
 #include <fstream>
 
-PlannerNode::PlannerNode(ros::NodeHandle *nodehandle):nh_(*nodehandle)
+PlannerNode::PlannerNode(ros::NodeHandle *nodehandle) : 
+    nh_(*nodehandle),
+    s_(0.1), v_(0.1), a_(0.1), l_(1.0), rl_(0.1),
+    s_NV_(150.0), l_NV_(1.0), v_NV_(0.0),
+    s_obs_(150.0)
 {
     initSubscribers();
     initPublishers();
-
-    // Default states
-    s_ = 0.1;
-    v_ = 0.1;
-    a_ = 0.1;
-    l_ = 1.0;
-    rl_ = 0.1;
-
-    s_NV_ = 150.0;
-    l_NV_ = 1.0;
-    v_NV_ = 0.0;
-
-    s_obs_ = 150.0;
 }
 
 void PlannerNode::initSubscribers()

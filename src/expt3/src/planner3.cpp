@@ -4,28 +4,20 @@
 */
 
 #include "include/node3.h"
-#include "include/jointmpc.h"
+// #include "include/jointmpc.h"
+// #include "include/imputer.h"
 #include <cstdlib>
 #include <fstream>
 
-PlannerNode::PlannerNode(ros::NodeHandle *nodehandle):nh_(*nodehandle)
+PlannerNode::PlannerNode(ros::NodeHandle *nodehandle) : 
+    nh_(*nodehandle),
+    s_(0.1), v_(0.1), a_(0.1), l_(1.0), rl_(0.1),
+    s_NV_(150.0), v_NV_(0.0), a_NV_(0.0), l_NV_(2.0),
+    alpha_v(50.0), alpha_a(50.0),
+    s_obs_(150.0)
 {
     initSubscribers();
     initPublishers();
-
-    // Default states
-    s_ = 0.1;
-    v_ = 0.1;
-    a_ = 0.1;
-    l_ = 1.0;
-    rl_ = 0.1;
-
-    s_NV_ = 150.0;    
-    v_NV_ = 0.0;
-    a_NV_ = 0.0;
-    l_NV_ = 2.0;
-
-    s_obs_ = 150.0;
 }
 
 void PlannerNode::initSubscribers()
@@ -101,24 +93,30 @@ void PlannerNode::obsPosSubscriberCallback(const geometry_msgs::Pose::ConstPtr &
     s_obs_ = -((x_obs - 85.235) * cos(0.003895) + (y_obs - 13.415) * sin(0.003895));
 }
 
-void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
+void PlannerNode::run(Imputer &Cost, Mpc &Opt, std::ofstream &logFile)
 {
+    int k = 0; // sim step counter
+    std::vector<std::vector<double>> ego_data;
+    std::vector<std::vector<double>> nv_data;
     ros::Rate rate(20); // Hz
     while (ros::ok()) {
 
-        // MPC
+        // aiMPC
         std::vector<double> X0;
         X0.push_back(s_);
         X0.push_back(v_);
         X0.push_back(a_);
         X0.push_back(l_);
         X0.push_back(rl_);
-        ROS_INFO("Ego init:- s: %f, v: %f, a: %f, l: %f", s_, v_, a_, l_);
+        
+        ego_data.push_back(X0);
 
         std::vector<double> X0_NV;
         X0_NV.push_back(s_NV_);
         X0_NV.push_back(v_NV_);
         X0_NV.push_back(a_NV_);
+
+        nv_data.push_back(X0_NV);
 
         geometry_msgs::Pose plan_pos;
         geometry_msgs::Twist plan_vel;
@@ -126,7 +124,17 @@ void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
         geometry_msgs::Accel plan_ua;
         geometry_msgs::Pose plan_ul;        
         
-        std::vector<double> plan = Opt.sol(X0, X0_NV , s_obs_);
+        if (k == (r - 1)) {
+            // need to store last r step traj data
+            std::vector<double> alphas = Cost.impute(nv_data, ego_data);
+
+            alpha_v = alphas[0];
+            alpha_a = alphas[1];
+
+            ego_data.clear();
+            nv_data.clear();
+        }
+        std::vector<double> plan = Opt.sol(X0, X0_NV, s_obs_, alpha_v, alpha_a);
 
         plan_pos.position.x = plan[0]; // s
         plan_pos.position.y = plan[3]; // l
@@ -135,9 +143,6 @@ void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
         plan_acc.linear.x = plan[2]; // a
         plan_ua.linear.x = plan[5]; // u_a
         plan_ul.position.y = plan[6]; // u_l
-
-        ROS_INFO("NV init:- s_NV: %f, v_NV: %f, a_NV: %f, l_NV: %f", s_NV_, v_NV_, a_NV_, l_NV_);
-        // ROS_INFO("Control:- u_a: %f, u_l %f", plan[5], plan[6]);
 
         this->dataLogger(logFile, plan);
 
@@ -149,6 +154,10 @@ void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
 
         ros::spinOnce();
         rate.sleep();
+
+        if (k == (r - 1)) {k = 0;}
+        else {k++;}
+        std::cout << "data step: " << k << std::endl;
     }
 }
 
@@ -157,7 +166,7 @@ void PlannerNode::dataLogger(std::ofstream &logFile, std::vector<double> &plan) 
     if (logFile.is_open()) {
         logFile << s_ << " " << v_ << " " << a_ << " " << l_ << " " << rl_ << " 11111 " << " "
         << plan[0] << " " << plan[1] << " " << plan[2] << " " << plan[3] << " " << plan[4] << " " << plan[5] << " " << plan[6] << " "
-        << "11111" << " " << s_NV_ << " " << v_NV_ << " " << a_NV_ << " " << l_NV_ << " " << "11111" << " " << s_obs_ << std::endl;
+        << "11111" << " " << s_NV_ << " " << v_NV_ << " " << a_NV_ << " " << l_NV_ << " " << "11111" << " " << s_obs_ << " " << "11111" << " " << alpha_v << " " << alpha_a << std::endl;
     }
     else std::cout << "Unable to open file" << std::endl;
 }
@@ -170,11 +179,13 @@ int main(int argc, char** argv)
 
     Mpc Opt; // instantiate MPC object
 
-    std::ofstream logFile ("src/expt2/data/log.txt"); // declare log file
+    Imputer Cost; // instantiate Imputer object
+
+    std::ofstream logFile ("src/expt3/data/log.txt"); // declare log file
 
     PlannerNode planner_node(&nh);
 
-    planner_node.run(Opt, logFile);
+    planner_node.run(Cost, Opt, logFile);
 
     ROS_INFO("Bye...");
 

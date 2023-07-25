@@ -8,6 +8,7 @@
 #include <geometry_msgs/Accel.h>
 
 #include "jointmpc.h"
+#include "imputer.h"
 #include <cmath>
 #include <vector>
 
@@ -16,7 +17,7 @@ class PlannerNode
 public:
     PlannerNode(ros::NodeHandle* nodehandle);
 
-    void run(Mpc &Opt, std::ofstream &logFile);
+    void run(Imputer &Cost, Mpc &Opt, std::ofstream &logFile);
 
     ros::NodeHandle nh_;
 
@@ -64,12 +65,8 @@ private:
     double v_NV_;
     double a_NV_;
     double l_NV_;
-
-    std::vector<double> s_NV_pred_;
-    std::vector<double> s1_1_front_;
-    std::vector<double> s1_1_rear_;
-    std::vector<double> s1_2_front_;
-    std::vector<double> s1_2_rear_;
+    double alpha_v;
+    double alpha_a;
 
     double s_obs_;
 };

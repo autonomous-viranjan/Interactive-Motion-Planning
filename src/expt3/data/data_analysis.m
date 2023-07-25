@@ -3,25 +3,24 @@
 
 clear, clc, close all
 
-% log_data = load("log_jb3.txt");
-% log_data = load("log_vb.txt");
-% log_data = load("log_az2.txt");
-log_data = load("log.txt");
+log_data = load("log1.txt");
 %%
-% start = 154;
-% fin = 590;
-% start = 160;
-% fin = 777;
-% start = 355;
-% fin = 1014;
-start = 27;
-fin = 636;
+% start = 108;
+% fin = 491;
+% start = 95;
+% fin = 742;
+% start = 210;
+% fin = 909;
+start = 5;
+fin = 460;
 X = log_data(start:fin, 1:5);
 X_ref = log_data(start:fin, 7:11);
 Ua = log_data(start:fin, 12);
 Ul = log_data(start:fin, 13);
-X_nv = log_data(start:fin, 15:17);
-X_obs = log_data(start:fin, 19);
+X_nv = log_data(start:fin, 15:18);
+X_obs = log_data(start:fin, 20);
+alpha_v = log_data(start:fin, 22);
+alpha_a = log_data(start:fin, 23);
 roadlength = 140;
 %%
 figure(1)
@@ -30,8 +29,8 @@ hold on
 plot([1.5 1.5],[0 roadlength],'--','LineWidth',2,'Color',[0.5 0.5 0.5]) % lane marking
 plot(X_ref(:,4),X_ref(:,1),'-.k')
 plot(X(:,4),X(:,1),'b')
-plot(X_nv(:,3),X_nv(:,1),'r')
-rectangle('Position',[0.5 (X_obs(1)-5) 0.5 5],'FaceColor',[0.9 0.8 0.8])
+plot(X_nv(:,4),X_nv(:,1),'r')
+rectangle('Position',[0.5 (X_obs(1)-5) 0.5 5],'FaceColor',[1 0.8 0.8])
 xlabel('Lane number')
 ylabel('Road length [m]')
 legend('','Reference','Tracked','NV')
@@ -48,13 +47,13 @@ surface([l;l],[s;s],[z;z],[col;col],...
         'facecol','no',...
         'edgecol','interp',...
         'linew',4);
-l_nv = X_nv(:,3)';
+l_nv = X_nv(:,4)';
 s_nv = X_nv(:,1)';
 surface([l_nv;l_nv],[s_nv;s_nv],[z;z],[col;col],...
         'facecol','no',...
         'edgecol','interp',...
         'linew',2);
-rectangle('Position',[0.5 (X_obs(1)-5) 0.5 5],'FaceColor',[0.9 0.9 0.9])
+rectangle('Position',[0.5 (X_obs(1)-5) 0.5 5],'FaceColor',[1 0.9 0.9])
 xlabel('Lane number')
 ylabel('Road length [m]')
 legend('', 'Ego', 'NV')
@@ -92,3 +91,14 @@ plot(X_nv(:,2))
 ylabel('m/s')
 legend('Ego', 'NV')
 title('Speed')
+%%
+figure(6)
+subplot(211)
+plot(X_nv(:,2))
+title('NV speed')
+subplot(212)
+plot(alpha_v/100)
+hold on
+plot(alpha_a/100)
+legend('$\alpha_v$','$\alpha_a$','Interpreter','Latex')
+title('Imputation')

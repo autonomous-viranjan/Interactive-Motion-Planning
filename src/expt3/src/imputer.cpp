@@ -10,44 +10,45 @@
 #include "include/imputer.h"
 #include "include/jointmpc.h"
 
-std::vector< std::vector<double> > Imputer::impute(std::vector< std::vector<double> > &nv_trajectory, std::vector< std::vector<double> > &ego_trajectory) 
+std::vector<double> Imputer::impute(std::vector< std::vector<double> > &nv_trajectory, std::vector< std::vector<double> > &ego_trajectory) 
 {
     /*
         Input: Trajectory data of NV
             Trajectory given by [Xnv(k-r), ..., Xnv(k)] => rows->state & columns->time step
-            where Xnv(k) = [s(k) v(k) a(k)]'
+            where Xnv(k) = [s(k) v(k) a(k)]
 
         Output: Weights [[alpha_v(k-r), alpha_a(k-r)], ..., [alpha_v(k), alpha_a(k)]]
     */
-   std::vector< std::vector<double> > alphas;
+   std::vector<double> alphas;
    try {
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
         model.set("OutputFlag", "0");
 
         GRBVar Xnv[nx_nv][r];
-        GRBVar alpha[2][r];
+        GRBVar alpha[2][1];
         GRBVar lambda[1][r];
         GRBVar nu[3][r];
 
         for (int t=0; t < r; t++) {
             Xnv[0][t] = model.addVar(-5.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
-            alpha[0][t] = model.addVar(0.0, alpha_scale, 0.0, GRB_CONTINUOUS);
-            alpha[1][t] = model.addVar(0.0, alpha_scale, 0.0, GRB_CONTINUOUS);
-            lambda[0][t] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);          
+            lambda[0][t] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+            nu[0][t] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+            nu[1][t] = model.addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+            nu[2][t] = model.addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS);          
         }
+        alpha[0][0] = model.addVar(0.0, alpha_scale, 0.0, GRB_CONTINUOUS);
+        alpha[1][0] = model.addVar(0.0, alpha_scale, 0.0, GRB_CONTINUOUS);
 
-        for (int t=0; t < r; t++) {
-            model.addConstr(alpha[0][t] + alpha[1][t] == alpha_scale);
-        }
+        model.addConstr(alpha[0][0] + alpha[1][0] == alpha_scale);
 
         GRBQuadExpr Jnv = 0;
         for (int t=0; t < r; t++) {
-            Jnv += (2/(L * L)) * (nv_trajectory[0][t] - ego_trajectory[0][t]) * (2/(L * L)) * (nv_trajectory[0][t] - ego_trajectory[0][t]) * lambda[0][t] * lambda[0][t] + nu[0][t] * nu[0][t] - (4/(L * L))*(nv_trajectory[0][t] - ego_trajectory[0][t]) * lambda[0][t] * nu[0][t]
-            + 4 * (nv_trajectory[1][t] - vref) * (nv_trajectory[1][t] - vref) + nu[1][t] * nu[1][t] + 4 * (nv_trajectory[1][t] - vref) * alpha[0][t] * nu[1][t]
-            + 4 * (nv_trajectory[2][t] * nv_trajectory[2][t]) * alpha[1][t] * alpha[1][t] + nu[2][t] * nu[2][t] + 4 * nv_trajectory[2][t] * nu[2][t]
+            Jnv += (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * lambda[0][t] + nu[0][t] * nu[0][t] - (4/(L * L))*(nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * nu[0][t]
+            + 4 * (nv_trajectory[t][1] - vref) * (nv_trajectory[t][1] - vref) * alpha[0][0] * alpha[0][0] + nu[1][t] * nu[1][t] + 4 * (nv_trajectory[t][1] - vref) * alpha[0][0] * nu[1][t]
+            + 4 * (nv_trajectory[t][2] * nv_trajectory[t][2]) * alpha[1][0] * alpha[1][0] + nu[2][t] * nu[2][t] + 4 * nv_trajectory[t][2] * alpha[1][0] * nu[2][t]
             + (dt / tau) * (dt / tau) * nu[2][t] * nu[2][t]
-            + lambda[0][t] * lambda[0][t] * (1 - ((nv_trajectory[0][t] - ego_trajectory[0][t]) / (L * L)) * ((nv_trajectory[0][t] - ego_trajectory[0][t]) / (L * L)) - ((2 - ego_trajectory[3][t]) / (W * W)) * ((2 - ego_trajectory[3][t]) / (W * W))) * (1 - ((nv_trajectory[0][t] - ego_trajectory[0][t]) / (L * L)) * ((nv_trajectory[0][t] - ego_trajectory[0][t]) / (L * L)) - ((2 - ego_trajectory[3][t]) / (W * W)) * ((2 - ego_trajectory[3][t]) / (W * W)));
+            + lambda[0][t] * lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W))) * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W)));
         }
 
         model.setObjective(Jnv, GRB_MINIMIZE);
@@ -57,23 +58,14 @@ std::vector< std::vector<double> > Imputer::impute(std::vector< std::vector<doub
         int status = model.get(GRB_IntAttr_Status);
 
         if (status == GRB_OPTIMAL) {
-            std::vector<double> alphas_v;
-            std::vector<double> alphas_a;
-            for (int t=0; t<r; t++) {
-                alphas_v.push_back(alpha[0][t].get(GRB_DoubleAttr_X));
-                alphas_a.push_back(alpha[1][t].get(GRB_DoubleAttr_X));
-            }
-            alphas.push_back(alphas_v);
-            alphas.push_back(alphas_a);
+            alphas.push_back(alpha[0][0].get(GRB_DoubleAttr_X));
+            alphas.push_back(alpha[1][0].get(GRB_DoubleAttr_X));
         }
         else {
-            // equal weight on both terms
-            for (int t=0; t<r; t++) {
-                alphas[0].push_back(alpha_scale / 2.0);
-                alphas[1].push_back(alpha_scale / 2.0);
-            }            
+            // equal weight on both terms            
+            alphas.push_back(alpha_scale / 2.0);
+            alphas.push_back(alpha_scale / 2.0);           
         }
-
    }
    catch(GRBException e) {
         std::cout << "Error code = " << e.getErrorCode() << std::endl;
