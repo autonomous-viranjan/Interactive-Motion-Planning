@@ -161,7 +161,6 @@ class LowLevel:
             u_a = (self.v_ref - self.v)
         else:
             u_a = (self.ua_ref - self.a) + 0.02 * (self.e_a + (self.ua_ref - self.a) * self.dt) + 0.1 * ((self.ua_ref - self.a) - self.e_a) / self.dt
-            # u_a = 2*(self.a_ref - self.a) + 1 * (self.e_a + (self.a_ref - self.a) * self.dt) + 0.1 * ((self.a_ref - self.a) - self.e_a) / self.dt
         
         u_steer = 0.25 * (self.l - self.ul_ref) + 0.25 * (self.e_l + (self.l - self.ul_ref) * self.dt) + 1.0 * ((self.l - self.ul_ref) - self.e_l) / self.dt
 
@@ -256,12 +255,15 @@ recommended_spawn_points = world.get_map().get_spawn_points()
 
 transform = recommended_spawn_points[45]
 # transform.location += carla.Location(x=15, y=3.7)
-transform.location += carla.Location(x=20, y=0)
+# transform.location += carla.Location(x=20, y=0)
+transform.location += carla.Location(x=23, y=0)
 print('Spawned at %s' % transform)
 
 # Spawn the vehicle
 vehicle = world.spawn_actor(vehicle_bp, transform)
 print('Created %s' % vehicle.type_id)
+# left indicator
+vehicle.set_light_state(carla.VehicleLightState.LeftBlinker)
 
 # Add some physics
 front_left_wheel  = carla.WheelPhysicsControl(tire_friction=2.0, damping_rate=1.5, max_steer_angle=40.0, long_stiff_value=1000)

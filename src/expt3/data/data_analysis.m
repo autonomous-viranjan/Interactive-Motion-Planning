@@ -3,7 +3,7 @@
 
 clear, clc, close all
 
-log_data = load("log1.txt");
+log_data = load("log.txt");
 %%
 % start = 108;
 % fin = 491;
@@ -11,8 +11,8 @@ log_data = load("log1.txt");
 % fin = 742;
 % start = 210;
 % fin = 909;
-start = 5;
-fin = 460;
+start = 10;
+fin = length(log_data);
 X = log_data(start:fin, 1:5);
 X_ref = log_data(start:fin, 7:11);
 Ua = log_data(start:fin, 12);
@@ -74,6 +74,7 @@ hold on
 plot(X(:,4))
 ylabel('Lane')
 legend('Command lane', 'Ego')
+xlabel('Time step')
 %%
 figure(4)
 plot(Ua, 'g')
@@ -83,22 +84,28 @@ plot(X_ref(:,3))
 ylim([-2 2])
 ylabel('m/s^2')
 legend('Commanded acceleration','Ego acceleration','Reference acceleration')
+xlabel('Time step')
 %%
 figure(5)
+subplot(211)
 plot(X(:,2))
 hold on
 plot(X_nv(:,2))
-ylabel('m/s')
-legend('Ego', 'NV')
-title('Speed')
-%%
-figure(6)
-subplot(211)
-plot(X_nv(:,2))
-title('NV speed')
+title('Velocity')
+ylabel('[m/s]')
+legend('Ego','NV')
 subplot(212)
-plot(alpha_v/100)
+plot(alpha_v/100,'r')
 hold on
-plot(alpha_a/100)
+plot(alpha_a/100,'g')
 legend('$\alpha_v$','$\alpha_a$','Interpreter','Latex')
 title('Imputation')
+xlabel('Time step')
+%%
+figure(6)
+plot(X(:,1))
+hold on
+plot(X_nv(:,1))
+legend('Ego','NV')
+ylabel('Longitudinal Position [m]')
+xlabel('Time step')

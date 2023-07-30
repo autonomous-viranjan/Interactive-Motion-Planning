@@ -13,9 +13,9 @@
 std::vector<double> Imputer::impute(std::vector< std::vector<double> > &nv_trajectory, std::vector< std::vector<double> > &ego_trajectory) 
 {
     /*
-        Input: Trajectory data of NV
-            Trajectory given by [Xnv(k-r), ..., Xnv(k)] => rows->state & columns->time step
-            where Xnv(k) = [s(k) v(k) a(k)]
+        Input: Trajectory data of NV and Ego
+            Trajectory given by 2D vector [X(k-r), ..., X(k)] => rows->state & columns->time step
+            where X(k) = [s(k) v(k) a(k)] 1D vector
 
         Output: Weights [[alpha_v(k-r), alpha_a(k-r)], ..., [alpha_v(k), alpha_a(k)]]
     */
@@ -45,14 +45,38 @@ std::vector<double> Imputer::impute(std::vector< std::vector<double> > &nv_traje
         GRBQuadExpr Jnv = 0;
         for (int t=0; t < r; t++) {
             Jnv += (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * lambda[0][t] + nu[0][t] * nu[0][t] - (4/(L * L))*(nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * nu[0][t]
-            + 4 * (nv_trajectory[t][1] - vref) * (nv_trajectory[t][1] - vref) * alpha[0][0] * alpha[0][0] + nu[1][t] * nu[1][t] + 4 * (nv_trajectory[t][1] - vref) * alpha[0][0] * nu[1][t]
+            + 4 * (nv_trajectory[t][1] - vref_) * (nv_trajectory[t][1] - vref_) * alpha[0][0] * alpha[0][0] + nu[1][t] * nu[1][t] + 4 * (nv_trajectory[t][1] - vref_) * alpha[0][0] * nu[1][t]
             + 4 * (nv_trajectory[t][2] * nv_trajectory[t][2]) * alpha[1][0] * alpha[1][0] + nu[2][t] * nu[2][t] + 4 * nv_trajectory[t][2] * alpha[1][0] * nu[2][t]
             + (dt / tau) * (dt / tau) * nu[2][t] * nu[2][t]
             + lambda[0][t] * lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W))) * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W)));
         }
+        // // increased acceleration sensitivity
+        // for (int t=0; t < r; t++) {
+        //     Jnv += (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * lambda[0][t] + nu[0][t] * nu[0][t] - (4/(L * L))*(nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * nu[0][t]
+        //     + 4 * (nv_trajectory[t][1] - vref_) * (nv_trajectory[t][1] - vref_) * alpha[0][0] * alpha[0][0] + nu[1][t] * nu[1][t] + 4 * (nv_trajectory[t][1] - vref) * alpha[0][0] * nu[1][t]
+        //     + 4 * (10 * nv_trajectory[t][2] * 10 * nv_trajectory[t][2]) * alpha[1][0] * alpha[1][0] + nu[2][t] * nu[2][t] + 4 * 10 * nv_trajectory[t][2] * alpha[1][0] * nu[2][t]
+        //     + (dt / tau) * (dt / tau) * nu[2][t] * nu[2][t]
+        //     + lambda[0][t] * lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W))) * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W)));
+        // }
+        // // decreased velocity sensitivity
+        // for (int t=0; t < r; t++) {
+        //     Jnv += (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * lambda[0][t] + nu[0][t] * nu[0][t] - (4/(L * L))*(nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * nu[0][t]
+        //     + 4 * (nv_trajectory[t][1] * 100 - vref) * (nv_trajectory[t][1] * 100 - vref) * alpha[0][0] * alpha[0][0] + nu[1][t] * nu[1][t] + 4 * (nv_trajectory[t][1] * 100 - vref) * alpha[0][0] * nu[1][t]
+        //     + 4 * (nv_trajectory[t][2] * nv_trajectory[t][2]) * alpha[1][0] * alpha[1][0] + nu[2][t] * nu[2][t] + 4 * nv_trajectory[t][2] * alpha[1][0] * nu[2][t]
+        //     + (dt / tau) * (dt / tau) * nu[2][t] * nu[2][t]
+        //     + lambda[0][t] * lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W))) * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W)));
+        // }
+        // // decreased acceleration sensitivity
+        // for (int t=0; t < r; t++) {
+        //     Jnv += (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * lambda[0][t] + nu[0][t] * nu[0][t] - (4/(L * L))*(nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * nu[0][t]
+        //     + 4 * (nv_trajectory[t][1] - vref) * (nv_trajectory[t][1] - vref) * alpha[0][0] * alpha[0][0] + nu[1][t] * nu[1][t] + 4 * (nv_trajectory[t][1] - vref) * alpha[0][0] * nu[1][t]
+        //     + 4 * ((nv_trajectory[t][2]/10) * (nv_trajectory[t][2]/10)) * alpha[1][0] * alpha[1][0] + nu[2][t] * nu[2][t] + 4 * (nv_trajectory[t][2]/10) * alpha[1][0] * nu[2][t]
+        //     + (dt / tau) * (dt / tau) * nu[2][t] * nu[2][t]
+        //     + lambda[0][t] * lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W))) * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W)));
+        // }
 
         model.setObjective(Jnv, GRB_MINIMIZE);
-        model.set("TimeLimit", "0.2");
+        model.set("TimeLimit", "0.1");
         model.optimize();
 
         int status = model.get(GRB_IntAttr_Status);

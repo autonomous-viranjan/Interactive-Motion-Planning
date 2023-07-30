@@ -125,7 +125,7 @@ void PlannerNode::run(Imputer &Cost, Mpc &Opt, std::ofstream &logFile)
         geometry_msgs::Pose plan_ul;        
         
         if (k == (r - 1)) {
-            // need to store last r step traj data
+            // need to pass last r step traj data
             std::vector<double> alphas = Cost.impute(nv_data, ego_data);
 
             alpha_v = alphas[0];

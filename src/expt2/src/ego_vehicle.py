@@ -256,12 +256,15 @@ recommended_spawn_points = world.get_map().get_spawn_points()
 
 transform = recommended_spawn_points[45]
 # transform.location += carla.Location(x=15, y=3.7)
-transform.location += carla.Location(x=20, y=0)
+# transform.location += carla.Location(x=20, y=0)
+transform.location += carla.Location(x=23, y=0)
 print('Spawned at %s' % transform)
 
 # Spawn the vehicle
 vehicle = world.spawn_actor(vehicle_bp, transform)
 print('Created %s' % vehicle.type_id)
+# left indicator
+vehicle.set_light_state(carla.VehicleLightState.LeftBlinker)
 
 # Add some physics
 front_left_wheel  = carla.WheelPhysicsControl(tire_friction=2.0, damping_rate=1.5, max_steer_angle=40.0, long_stiff_value=1000)
