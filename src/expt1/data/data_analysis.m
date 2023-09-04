@@ -15,7 +15,7 @@ log_data = load("log.txt");
 % start = 355;
 % fin = 1014;
 start = 27;
-fin = 636;
+fin = length(log_data);
 X = log_data(start:fin, 1:5);
 X_ref = log_data(start:fin, 7:11);
 Ua = log_data(start:fin, 12);
@@ -92,3 +92,19 @@ plot(X_nv(:,2))
 ylabel('m/s')
 legend('Ego', 'NV')
 title('Speed')
+%%
+figure(6)
+plot(X(:,1))
+hold on
+plot(X_nv(:,1))
+legend('Ego','NV')
+ylabel('Longitudinal Position [m]')
+xlabel('Time step')
+%%
+figure(7)
+plot(X(:,4))
+hold on
+plot(X_nv(:,4))
+legend('Ego','NV')
+ylabel('Lateral Position [m]')
+xlabel('Time step')

@@ -14,8 +14,8 @@ Mandatory lane change (MLC) scenario: a stationary truck in ego's lane. Ego vehi
 2. Run ros master `roscore`
 3. In the ROS workspace `cd ~/CARLA_0.9.14/PythonAPI/Interactive-Motion-Planning` and `source devel/setup.bash` in three new terminals
 4. Run Ego vehicle client via `rosrun expt3 ego_vehicle.py`
-5. Run Neighbor vehicle client via `rosrun expt3 NV.py`
-6. Run stopped vehicle client via `rosrun expt3 stopped_vehicle.py`
+5. Run stopped vehicle client via `rosrun expt3 stopped_vehicle.py`
+6. Run Neighbor vehicle client via `rosrun expt3 NV.py`
 7. Run Planner via `rosrun expt3 planner3`
 
 [Instructions for setting up wheels for driving are available in NV.py]

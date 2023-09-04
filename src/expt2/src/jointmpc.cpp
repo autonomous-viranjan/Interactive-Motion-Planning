@@ -12,7 +12,7 @@
 std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs)
 {
     /*
-        Joint MPC input: current state of Ego and NV
+        Joint MPC input: current state of Ego, NV and obstacle
         MPC output: planned next state
     */
     std::vector<double> plan;

@@ -15,7 +15,7 @@ std::vector<double> Mpc::sol(std::vector<double> &X0,
                             double &s_obs)
 {
     /*
-        MPC input: current state (initial state), NV position
+        MPC input: current state (initial state), NV position, obstacle position
         MPC output: planned next state
     */
     std::vector<double> plan;

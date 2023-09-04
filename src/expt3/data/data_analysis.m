@@ -5,12 +5,6 @@ clear, clc, close all
 
 log_data = load("log.txt");
 %%
-% start = 108;
-% fin = 491;
-% start = 95;
-% fin = 742;
-% start = 210;
-% fin = 909;
 start = 10;
 fin = length(log_data);
 X = log_data(start:fin, 1:5);
@@ -108,4 +102,12 @@ hold on
 plot(X_nv(:,1))
 legend('Ego','NV')
 ylabel('Longitudinal Position [m]')
+xlabel('Time step')
+%%
+figure(7)
+plot(X(:,4))
+hold on
+plot(X_nv(:,4))
+legend('Ego','NV')
+ylabel('Lateral Position [m]')
 xlabel('Time step')
