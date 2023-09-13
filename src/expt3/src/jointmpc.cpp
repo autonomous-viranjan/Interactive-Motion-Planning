@@ -107,10 +107,12 @@ std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV
 
         // Define the objective
         GRBQuadExpr obj = 0;
+        //// Same nature (weights) of Ego as NV
         // for (int k = 0; k < T; k++) {    
         //     obj += alpha_v * (X[1][k] * X[1][k] - 2 * X[1][k] * vref) + alpha_a * (X[2][k] * X[2][k]) + alpha_a * (U[0][k] * U[0][k]) + 1e5 * eps[0][k] * eps[0][k] + 1e5 * eps[1][k] * eps[1][k]
         //         + alpha_v * (Xnv[1][k] * Xnv[1][k] - 2 * Xnv[1][k] * vref) + alpha_a * (Xnv[2][k] * Xnv[2][k]) + alpha_a * (Unv[0][k] * Unv[0][k]);
         // }
+        // Predefined nature (weights) of Ego
         for (int k = 0; k < T; k++) {    
             obj += qv * (X[1][k] * X[1][k] - 2 * X[1][k] * vref) + qa * (X[2][k] * X[2][k]) + qa * (U[0][k] * U[0][k]) + 1e5 * eps[0][k] * eps[0][k] + 1e5 * eps[1][k] * eps[1][k]
                 + alpha_v * (Xnv[1][k] * Xnv[1][k] - 2 * Xnv[1][k] * vref) + alpha_a * (Xnv[2][k] * Xnv[2][k]) + alpha_a * (Unv[0][k] * Unv[0][k]);
@@ -118,7 +120,7 @@ std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV
         //// delta costs
         for (int k = 1; k < T; k++) {
             obj += qul * (U[1][k] - U[1][k-1]) * (U[1][k] - U[1][k-1]) + qul * (X[3][k] - X[3][k-1]) * (X[3][k] - X[3][k-1]) + qda * (X[2][k] - X[2][k-1]) * (X[2][k] - X[2][k-1])
-                + qda * (Xnv[2][k] - Xnv[2][k-1]) * (Xnv[2][k] - Xnv[2][k-1]);
+                + alpha_a * (Xnv[2][k] - Xnv[2][k-1]) * (Xnv[2][k] - Xnv[2][k-1]);
         }
         model.setObjective(obj, GRB_MINIMIZE);
         // some settings
@@ -139,6 +141,10 @@ std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV
             plan.push_back(X[4][1].get(GRB_DoubleAttr_X));
             plan.push_back(U[0][0].get(GRB_DoubleAttr_X));
             plan.push_back(U[1][0].get(GRB_DoubleAttr_X));
+            // next step prediction of NV
+            plan.push_back(Xnv[0][1].get(GRB_DoubleAttr_X));
+            plan.push_back(Xnv[1][1].get(GRB_DoubleAttr_X));
+            plan.push_back(Xnv[2][1].get(GRB_DoubleAttr_X));
         }
         else {
             // vehicle slow
@@ -150,6 +156,10 @@ std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV
 
             plan.push_back(1.0);
             plan.push_back(X0[3]);
+            // no prediction
+            plan.push_back(0.0);
+            plan.push_back(0.0);
+            plan.push_back(0.0);
         }        
 
     } catch(GRBException e) {

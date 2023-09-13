@@ -145,9 +145,10 @@ void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
 void PlannerNode::dataLogger(std::ofstream &logFile, std::vector<double> &plan) {
     
     if (logFile.is_open()) {
-        logFile << s_ << " " << v_ << " " << a_ << " " << l_ << " " << rl_ << " 11111 " << " "
-        << plan[0] << " " << plan[1] << " " << plan[2] << " " << plan[3] << " " << plan[4] << " " << plan[5] << " " << plan[6] << " "
-        << "11111" << " " << s_NV_ << " " << v_NV_ << " " << a_NV_ << " " << l_NV_ << " " << "11111" << " " << s_obs_ << std::endl;
+        logFile << s_ << " " << v_ << " " << a_ << " " << l_ << " " << rl_ << " "
+        << "11111" << " " << plan[0] << " " << plan[1] << " " << plan[2] << " " << plan[3] << " " << plan[4] << " " << plan[5] << " " << plan[6] << " "
+        << "11111" << " " << s_NV_ << " " << v_NV_ << " " << a_NV_ << " " << l_NV_ << " " << "11111" << " " << s_obs_ << " "
+        << "11111" << " " << plan[7] << " " << plan[8] << " " << plan[9] << std::endl;
     }
     else std::cout << "Unable to open file" << std::endl;
 }

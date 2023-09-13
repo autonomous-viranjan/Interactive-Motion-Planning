@@ -25,13 +25,11 @@ std::vector<double> Imputer::impute(std::vector< std::vector<double> > &nv_traje
         GRBModel model = GRBModel(env);
         model.set("OutputFlag", "0");
 
-        GRBVar Xnv[nx_nv][r];
         GRBVar alpha[2][1];
         GRBVar lambda[1][r];
         GRBVar nu[3][r];
 
         for (int t=0; t < r; t++) {
-            Xnv[0][t] = model.addVar(-5.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
             lambda[0][t] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
             nu[0][t] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
             nu[1][t] = model.addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS);

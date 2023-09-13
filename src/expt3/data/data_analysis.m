@@ -5,7 +5,7 @@ clear, clc, close all
 
 log_data = load("log.txt");
 %%
-start = 10;
+start = 47;
 fin = length(log_data);
 X = log_data(start:fin, 1:5);
 X_ref = log_data(start:fin, 7:11);
@@ -15,6 +15,7 @@ X_nv = log_data(start:fin, 15:18);
 X_obs = log_data(start:fin, 20);
 alpha_v = log_data(start:fin, 22);
 alpha_a = log_data(start:fin, 23);
+X_nv_pred = log_data(start:fin, 25:27);
 roadlength = 140;
 %%
 figure(1)
@@ -111,3 +112,22 @@ plot(X_nv(:,4))
 legend('Ego','NV')
 ylabel('Lateral Position [m]')
 xlabel('Time step')
+%%
+figure(8)
+set (gca,'DataAspectRatio',[1 60 1],'Xdir','reverse','Xlim',[1.5 2.5])
+hold on 
+plot([1.5 1.5],[0 roadlength],'--','LineWidth',2,'Color',[0.5 0.5 0.5]) % lane marking
+plot(X_nv(:,4),X_nv(:,1),'Color',[0.8 0.1 0.5],'LineWidth',2)
+plot(2*ones(length(X_nv_pred)), X_nv_pred(:,1),'.r')
+xlabel('Lane number')
+ylabel('Road length [m]')
+legend('','Actual','Predicted')
+title('NV actual and predicted trajectory')
+%%
+figure(9)
+plot(X_nv(:,2))
+hold on
+plot(X_nv_pred(:,2))
+title('Velocity')
+ylabel('[m/s]')
+legend('NV actual','NV predicted')

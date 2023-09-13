@@ -136,6 +136,10 @@ std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV
             plan.push_back(X[4][1].get(GRB_DoubleAttr_X));
             plan.push_back(U[0][0].get(GRB_DoubleAttr_X));
             plan.push_back(U[1][0].get(GRB_DoubleAttr_X));
+            // next step prediction of NV
+            plan.push_back(Xnv[0][1].get(GRB_DoubleAttr_X));
+            plan.push_back(Xnv[1][1].get(GRB_DoubleAttr_X));
+            plan.push_back(Xnv[2][1].get(GRB_DoubleAttr_X));
         }
         else {
             // vehicle slow
@@ -147,6 +151,10 @@ std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV
 
             plan.push_back(1.0);
             plan.push_back(X0[3]);
+            // no prediction
+            plan.push_back(0.0);
+            plan.push_back(0.0);
+            plan.push_back(0.0);
         }        
 
     } catch(GRBException e) {
