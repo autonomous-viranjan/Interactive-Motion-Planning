@@ -16,7 +16,7 @@ class PlannerNode
 public:
     PlannerNode(ros::NodeHandle* nodehandle);
     
-    void run(Mpc &Opt, std::ofstream &logFile);
+    void run(Mpc &Opt, std::ofstream &logFile, std::ofstream &horizonFile);
 
     ros::NodeHandle nh_;
 

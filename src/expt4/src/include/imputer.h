@@ -16,5 +16,4 @@ private:
     const double alpha_scale = 100;
     const double L = 5.0/2.0; // vehicle length/2
     const double W = 0.5/2.0; // vehicle width wrt lane width/2
-    const double vref_ = 10.0;
 };

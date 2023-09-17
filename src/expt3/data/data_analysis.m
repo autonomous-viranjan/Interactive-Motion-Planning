@@ -5,7 +5,7 @@ clear, clc, close all
 
 log_data = load("log.txt");
 %%
-start = 47;
+start = 97;
 fin = length(log_data);
 X = log_data(start:fin, 1:5);
 X_ref = log_data(start:fin, 7:11);
@@ -90,9 +90,9 @@ title('Velocity')
 ylabel('[m/s]')
 legend('Ego','NV')
 subplot(212)
-plot(alpha_v/100,'r')
+plot(alpha_v,'r')
 hold on
-plot(alpha_a/100,'g')
+plot(alpha_a,'g')
 legend('$\alpha_v$','$\alpha_a$','Interpreter','Latex')
 title('Imputation')
 xlabel('Time step')

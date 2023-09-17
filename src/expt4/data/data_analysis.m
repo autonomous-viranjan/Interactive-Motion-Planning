@@ -3,18 +3,9 @@
 
 clear, clc, close all
 
-% log_data = load("log_jb3.txt");
-% log_data = load("log_vb2.txt");
-% log_data = load("log_az2.txt");
-log_data = load("ta_100_0_set.txt");
+log_data = load("log.txt");
 %%
-% start = 108;
-% fin = 491;
-% start = 95;
-% fin = 742;
-% start = 210;
-% fin = 909;
-start = 111;
+start = 39;
 fin = length(log_data);
 X = log_data(start:fin, 1:5);
 X_ref = log_data(start:fin, 7:11);
@@ -22,7 +13,9 @@ Ua = log_data(start:fin, 12);
 Ul = log_data(start:fin, 13);
 X_nv = log_data(start:fin, 15:18);
 X_obs = log_data(start:fin, 20);
-X_nv_pred = log_data(start:fin, 22:24);
+alpha_v = log_data(start:fin, 22);
+alpha_a = log_data(start:fin, 23);
+X_nv_pred = log_data(start:fin, 25:27);
 roadlength = 140;
 %%
 figure(1)
@@ -76,6 +69,7 @@ hold on
 plot(X(:,4))
 ylabel('Lane')
 legend('Command lane', 'Ego')
+xlabel('Time step')
 %%
 figure(4)
 plot(Ua, 'g')
@@ -85,14 +79,23 @@ plot(X_ref(:,3))
 ylim([-2 2])
 ylabel('m/s^2')
 legend('Commanded acceleration','Ego acceleration','Reference acceleration')
+xlabel('Time step')
 %%
 figure(5)
+subplot(211)
 plot(X(:,2))
 hold on
 plot(X_nv(:,2))
-ylabel('m/s')
-legend('Ego', 'NV')
-title('Speed')
+title('Velocity')
+ylabel('[m/s]')
+legend('Ego','NV')
+subplot(212)
+plot(alpha_v,'r')
+hold on
+plot(alpha_a,'g')
+legend('$\alpha_{risk}$','$\alpha_{safe}$','Interpreter','Latex')
+title('Imputation')
+xlabel('Time step')
 %%
 figure(6)
 plot(X(:,1))

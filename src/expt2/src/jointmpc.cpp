@@ -4,12 +4,9 @@
 */
 
 #include "include/jointmpc.h"
-#include <iostream>
-#include <fstream>
-#include <vector>
 #include "/home/optimal-student/vb/gurobi10.0.1_linux64/gurobi1001/linux64/include/gurobi_c++.h"
 
-std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs)
+std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs, std::ofstream &horizonFile)
 {
     /*
         Joint MPC input: current state of Ego, NV and obstacle
@@ -106,17 +103,29 @@ std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV
             model.addConstr((Xnv[0][k] - 5) - X[0][k] + bigM * beta[0][k] - bigM * mu[1][k] >= -bigM);
         }
 
+        // // Define the objective
+        // GRBQuadExpr obj = 0;
+        // for (int k = 0; k < T; k++) {    
+        //     obj += qv * (X[1][k] * X[1][k] - 2 * X[1][k] * vref) + qa * (X[2][k] * X[2][k]) + qa * (U[0][k] * U[0][k]) + 1e5 * eps[0][k] * eps[0][k] + 1e5 * eps[1][k] * eps[1][k]
+        //         + qv * (Xnv[1][k] * Xnv[1][k] - 2 * Xnv[1][k] * vref) + qa * (Xnv[2][k] * Xnv[2][k]) + qa * (Unv[0][k] * Unv[0][k]);
+        // }
+        // //// delta costs
+        // for (int k = 1; k < T; k++) {
+        //     obj += qul * (U[1][k] - U[1][k-1]) * (U[1][k] - U[1][k-1]) + qul * (X[3][k] - X[3][k-1]) * (X[3][k] - X[3][k-1]) + qda * (X[2][k] - X[2][k-1]) * (X[2][k] - X[2][k-1])
+        //         + qda * (Xnv[2][k] - Xnv[2][k-1]) * (Xnv[2][k] - Xnv[2][k-1]);
+        // }
         // Define the objective
         GRBQuadExpr obj = 0;
         for (int k = 0; k < T; k++) {    
             obj += qv * (X[1][k] * X[1][k] - 2 * X[1][k] * vref) + qa * (X[2][k] * X[2][k]) + qa * (U[0][k] * U[0][k]) + 1e5 * eps[0][k] * eps[0][k] + 1e5 * eps[1][k] * eps[1][k]
-                + qv * (Xnv[1][k] * Xnv[1][k] - 2 * Xnv[1][k] * vref) + qa * (Xnv[2][k] * Xnv[2][k]) + qa * (Unv[0][k] * Unv[0][k]);
+                + av * (Xnv[1][k] * Xnv[1][k] - 2 * Xnv[1][k] * vref) + aa * (Xnv[2][k] * Xnv[2][k]) + aa * (Unv[0][k] * Unv[0][k]);
         }
         //// delta costs
         for (int k = 1; k < T; k++) {
             obj += qul * (U[1][k] - U[1][k-1]) * (U[1][k] - U[1][k-1]) + qul * (X[3][k] - X[3][k-1]) * (X[3][k] - X[3][k-1]) + qda * (X[2][k] - X[2][k-1]) * (X[2][k] - X[2][k-1])
-                + qda * (Xnv[2][k] - Xnv[2][k-1]) * (Xnv[2][k] - Xnv[2][k-1]);
+                + aa * (Xnv[2][k] - Xnv[2][k-1]) * (Xnv[2][k] - Xnv[2][k-1]);
         }
+
         model.setObjective(obj, GRB_MINIMIZE);
         // some settings
         model.set("TimeLimit", "0.2");
@@ -140,6 +149,14 @@ std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV
             plan.push_back(Xnv[0][1].get(GRB_DoubleAttr_X));
             plan.push_back(Xnv[1][1].get(GRB_DoubleAttr_X));
             plan.push_back(Xnv[2][1].get(GRB_DoubleAttr_X));
+
+            // log horizon data
+            if (horizonFile.is_open()) {
+                for (int i=0; i < T; i++) {
+                    horizonFile <<  X[0][i].get(GRB_DoubleAttr_X)  << " " << X[1][i].get(GRB_DoubleAttr_X) << " " << X[2][i].get(GRB_DoubleAttr_X) << " " << X[3][i].get(GRB_DoubleAttr_X) << " " << X[4][i].get(GRB_DoubleAttr_X) << " " << Xnv[0][i].get(GRB_DoubleAttr_X) << " " << Xnv[1][i].get(GRB_DoubleAttr_X) << " " << Xnv[2][i].get(GRB_DoubleAttr_X) << std::endl;           
+                }
+            }
+            else {std::cout << "Unable to open horizon file" << std::endl;}
         }
         else {
             // vehicle slow

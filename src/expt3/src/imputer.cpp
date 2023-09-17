@@ -14,10 +14,10 @@ std::vector<double> Imputer::impute(std::vector< std::vector<double> > &nv_traje
 {
     /*
         Input: Trajectory data of NV and Ego
-            Trajectory given by 2D vector [X(k-r), ..., X(k)] => rows->state & columns->time step
+            Trajectory given by 2D vector [X(k-r), ..., X(k)] => access: trajectory[time_step][state]
             where X(k) = [s(k) v(k) a(k)] 1D vector
 
-        Output: Weights [[alpha_v(k-r), alpha_a(k-r)], ..., [alpha_v(k), alpha_a(k)]]
+        Output: Weights alpha[0] = alpha_v, alpha[1] = alpha_a
     */
    std::vector<double> alphas;
    try {
@@ -40,13 +40,21 @@ std::vector<double> Imputer::impute(std::vector< std::vector<double> > &nv_traje
 
         model.addConstr(alpha[0][0] + alpha[1][0] == alpha_scale);
 
+        // GRBQuadExpr Jnv = 0;
+        // for (int t=0; t < r; t++) {
+        //     Jnv += (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * lambda[0][t] + nu[0][t] * nu[0][t] - (4/(L * L))*(nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * nu[0][t]
+        //     + 4 * (nv_trajectory[t][1] - vref_) * (nv_trajectory[t][1] - vref_) * alpha[0][0] * alpha[0][0] + nu[1][t] * nu[1][t] + 4 * (nv_trajectory[t][1] - vref_) * alpha[0][0] * nu[1][t]
+        //     + 4 * (nv_trajectory[t][2] * nv_trajectory[t][2]) * alpha[1][0] * alpha[1][0] + nu[2][t] * nu[2][t] + 4 * nv_trajectory[t][2] * alpha[1][0] * nu[2][t]
+        //     + (dt / tau) * (dt / tau) * nu[2][t] * nu[2][t]
+        //     + lambda[0][t] * lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W))) * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W)));
+        // }
         GRBQuadExpr Jnv = 0;
         for (int t=0; t < r; t++) {
-            Jnv += (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * lambda[0][t] + nu[0][t] * nu[0][t] - (4/(L * L))*(nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * nu[0][t]
-            + 4 * (nv_trajectory[t][1] - vref_) * (nv_trajectory[t][1] - vref_) * alpha[0][0] * alpha[0][0] + nu[1][t] * nu[1][t] + 4 * (nv_trajectory[t][1] - vref_) * alpha[0][0] * nu[1][t]
-            + 4 * (nv_trajectory[t][2] * nv_trajectory[t][2]) * alpha[1][0] * alpha[1][0] + nu[2][t] * nu[2][t] + 4 * nv_trajectory[t][2] * alpha[1][0] * nu[2][t]
-            + (dt / tau) * (dt / tau) * nu[2][t] * nu[2][t]
-            + lambda[0][t] * lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W))) * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W)));
+            Jnv += (-2 * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] / (L * L) + nu[0][t]) * (-2 * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] / (L * L) + nu[0][t])
+            + (2 * alpha[0][0] * (nv_trajectory[t][1] - vref_) + nu[1][t]) * (2 * alpha[0][0] * (nv_trajectory[t][1] - vref_) + nu[1][t])
+            + (2 * alpha[1][0] * nv_trajectory[t][2] + nu[2][t]) * (2 * alpha[1][0] * nv_trajectory[t][2] + nu[2][t])
+            + (-dt * nu[2][t] / tau) * (-dt * nu[2][t] / tau)
+            + lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W))) * lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W)));
         }
         // // increased acceleration sensitivity
         // for (int t=0; t < r; t++) {
@@ -56,7 +64,7 @@ std::vector<double> Imputer::impute(std::vector< std::vector<double> > &nv_traje
         //     + (dt / tau) * (dt / tau) * nu[2][t] * nu[2][t]
         //     + lambda[0][t] * lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W))) * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W)));
         // }
-        // // decreased velocity sensitivity
+        // decreased velocity sensitivity
         // for (int t=0; t < r; t++) {
         //     Jnv += (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * (2/(L * L)) * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * lambda[0][t] + nu[0][t] * nu[0][t] - (4/(L * L))*(nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] * nu[0][t]
         //     + 4 * (nv_trajectory[t][1] * 100 - vref) * (nv_trajectory[t][1] * 100 - vref) * alpha[0][0] * alpha[0][0] + nu[1][t] * nu[1][t] + 4 * (nv_trajectory[t][1] * 100 - vref) * alpha[0][0] * nu[1][t]

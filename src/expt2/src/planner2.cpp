@@ -91,7 +91,7 @@ void PlannerNode::obsPosSubscriberCallback(const geometry_msgs::Pose::ConstPtr &
     s_obs_ = -((x_obs - 85.235) * cos(0.003895) + (y_obs - 13.415) * sin(0.003895));
 }
 
-void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
+void PlannerNode::run(Mpc &Opt, std::ofstream &logFile, std::ofstream &horizonFile)
 {
     ros::Rate rate(20); // Hz
     while (ros::ok()) {
@@ -116,7 +116,7 @@ void PlannerNode::run(Mpc &Opt, std::ofstream &logFile)
         geometry_msgs::Accel plan_ua;
         geometry_msgs::Pose plan_ul;        
         
-        std::vector<double> plan = Opt.sol(X0, X0_NV , s_obs_);
+        std::vector<double> plan = Opt.sol(X0, X0_NV , s_obs_, horizonFile);
 
         plan_pos.position.x = plan[0]; // s
         plan_pos.position.y = plan[3]; // l
@@ -162,10 +162,11 @@ int main(int argc, char** argv)
     Mpc Opt; // instantiate MPC object
 
     std::ofstream logFile ("src/expt2/data/log.txt"); // declare log file
+    std::ofstream horizonFile ("src/expt2/data/horizon.txt");
 
     PlannerNode planner_node(&nh);
 
-    planner_node.run(Opt, logFile);
+    planner_node.run(Opt, logFile, horizonFile);
 
     ROS_INFO("Bye...");
 

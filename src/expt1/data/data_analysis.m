@@ -6,7 +6,7 @@ clear, clc, close all
 % log_data = load("log_jb3.txt");
 % log_data = load("log_vb.txt");
 % log_data = load("log_az2.txt");
-log_data = load("log.txt");
+log_data = load("ta1.txt");
 %%
 % start = 154;
 % fin = 590;

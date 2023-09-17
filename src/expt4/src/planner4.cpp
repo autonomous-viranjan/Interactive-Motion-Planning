@@ -3,9 +3,7 @@
     EMC2 Lab Clemson University
 */
 
-#include "include/node3.h"
-// #include "include/jointmpc.h"
-// #include "include/imputer.h"
+#include "include/node4.h"
 #include <cstdlib>
 #include <fstream>
 
@@ -183,8 +181,8 @@ int main(int argc, char** argv)
 
     Imputer Cost; // instantiate Imputer object
 
-    std::ofstream logFile ("src/expt3/data/log.txt"); // declare log file
-    std::ofstream horizonFile ("src/expt3/data/horizon.txt");
+    std::ofstream logFile ("src/expt4/data/log.txt"); // declare log file
+    std::ofstream horizonFile ("src/expt4/data/horizon.txt");
 
     PlannerNode planner_node(&nh);
 

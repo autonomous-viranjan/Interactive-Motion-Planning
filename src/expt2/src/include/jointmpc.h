@@ -2,11 +2,13 @@
 
 #include <vector>
 #include <iostream>
+#include <iostream>
+#include <fstream>
 
 class Mpc
 {
 public:    
-    std::vector<double> sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs);
+    std::vector<double> sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs, std::ofstream &horizonFile);
 
     void write(const char* s) {
         std::cout << s << std::endl;
@@ -29,6 +31,12 @@ private:
 
     double qv = 10.0;    
     double qa = 30.0;
+
+    // double av = 100.0;    
+    // double aa = 1e-6;
+    double av = 50.0;    
+    double aa = 50.0;
+
     double qul = 1000.0;
     double qda = 100.0; 
 
