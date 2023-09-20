@@ -3,3 +3,9 @@ This project aims to study the interaction between an autonomous vehicle and a h
 
 - Real-time Software-in-the-loop simulation in CARLA with Human-in-the-loop capability.
 - ROS (Noetic) for communication.
+
+## Key dependencies:
+- CARLA simulator
+- Gurobi
+- ROS Noetic
+- MATLAB (data analysis)
