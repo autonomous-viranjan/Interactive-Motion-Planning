@@ -6,7 +6,7 @@
     Viranjan Bhattacharyya
     EMC2 Lab Clemson University
 */
-#include "/home/optimal-student/vb/gurobi10.0.1_linux64/gurobi1001/linux64/include/gurobi_c++.h"
+#include "/home/emc2/vb/gurobi10.0.3_linux64/gurobi1003/linux64/include/gurobi_c++.h"
 #include "include/imputer.h"
 #include "include/jointmpc.h"
 

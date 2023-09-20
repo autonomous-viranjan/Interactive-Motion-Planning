@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   genmsg
 )
 
-set(GUROBI_FOLDER "/home/optimal-student/vb/gurobi10.0.1_linux64/gurobi1001/linux64")
+set(GUROBI_FOLDER "/home/emc2/vb/gurobi10.0.3_linux64/gurobi1003/linux64")
 set(GUROBI_LIB_DIRS ${GUROBI_FOLDER}/lib)  
 set(GUROBI_LIBS gurobi_g++5.2 gurobi100)
 set(GUROBI_INCLUDE_DIRS ${GUROBI_FOLDER}/include)
