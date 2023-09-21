@@ -395,7 +395,7 @@ def game_loop():
                 # vehicle_control.throttle = 0
             
             if u_a < 0:
-                vehicle_control.brake = 0.8
+                vehicle_control.brake = u_a
                 # u_brake = u_brake_prev + ((-1/0.1)*u_brake_prev + (1/0.1)*(u_a))*dt_sim
                 # vehicle_control.brake = u_brake
                 # u_brake_prev = u_a
