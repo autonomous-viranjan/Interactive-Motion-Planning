@@ -391,7 +391,7 @@ def game_loop():
                 u_a_prev = u_a
                 u_throttle_prev = u_throttle
             else:
-                vehicle_control.throttle = 0.5
+                vehicle_control.throttle = 0.15
                 # vehicle_control.throttle = 0
             
             if u_a < 0:
