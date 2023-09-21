@@ -345,6 +345,9 @@ def game_loop():
 
         end = False
         t = 0
+        u_a_prev = 0
+        u_throttle_prev = 0
+        dt_sim = 0.05
         while not end:
             # Advance the simulation time
             world.tick()
@@ -381,9 +384,13 @@ def game_loop():
             # print("steer: ", u_steer)
 
             if u_a >= 0:
-                vehicle_control.throttle = u_a
-            else:
-                vehicle_control.throttle = 0.5
+                # vehicle_control.throttle = u_a
+                u_throttle = u_throttle_prev + ((-1/0.1)*u_throttle_prev + (1/0.1)*(u_a + (u_a - u_a_prev)/dt_sim))*dt_sim
+                vehicle_control.throttle = u_throttle
+                u_a_prev = u_a
+                u_throttle_prev = u_throttle
+            # else:
+            #     vehicle_control.throttle = 0.5
             
             if u_a < 0:
                 vehicle_control.brake = 0.8
