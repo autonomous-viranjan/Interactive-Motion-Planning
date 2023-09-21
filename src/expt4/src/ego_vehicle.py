@@ -160,7 +160,8 @@ class LowLevel:
         if self.ua_ref == 0:
             u_a = (self.v_ref - self.v)
         else:
-            u_a = (self.ua_ref - self.a) + 0.02 * (self.e_a + (self.ua_ref - self.a) * self.dt) + 0.1 * ((self.ua_ref - self.a) - self.e_a) / self.dt
+            # u_a = (self.ua_ref - self.a) + 0.02 * (self.e_a + (self.ua_ref - self.a) * self.dt) + 0.1 * ((self.ua_ref - self.a) - self.e_a) / self.dt
+            u_a = (self.ua_ref - self.a) + 0.01 * (self.e_a + (self.ua_ref - self.a) * self.dt) + 0.1 * ((self.ua_ref - self.a) - self.e_a) / self.dt
         
         u_steer = 0.25 * (self.l - self.ul_ref) + 0.25 * (self.e_l + (self.l - self.ul_ref) * self.dt) + 1.0 * ((self.l - self.ul_ref) - self.e_l) / self.dt
 
@@ -391,7 +392,7 @@ def game_loop():
                 u_a_prev = u_a
                 u_throttle_prev = u_throttle
             else:
-                vehicle_control.throttle = 0.5
+                vehicle_control.throttle = 0.25
                 # vehicle_control.throttle = 0
             
             if u_a < 0:
