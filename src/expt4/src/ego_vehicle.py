@@ -381,8 +381,8 @@ def game_loop():
             # print("steer: ", u_steer)
 
             if u_a >= 0:
-                # vehicle_control.throttle = u_a
-                vehicle_control.throttle = vehicle_control.throttle + ((-1/0.1)*vehicle_control.throttle + (1/0.1)*u_a)*0.05
+                vehicle_control.throttle = u_a
+                # vehicle_control.throttle = vehicle_control.throttle + ((-1/0.1)*vehicle_control.throttle + (1/0.1)*u_a)*0.05
             # else:
             #     vehicle_control.throttle = 0.5
             
