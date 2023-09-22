@@ -6,7 +6,7 @@ clear, clc, close all
 % log_data = load("log_jb3.txt");
 % log_data = load("log_vb2.txt");
 % log_data = load("log_az2.txt");
-log_data = load("ta_100_0_set.txt");
+log_data = load("cc3.txt");
 %%
 % start = 108;
 % fin = 491;
@@ -14,7 +14,7 @@ log_data = load("ta_100_0_set.txt");
 % fin = 742;
 % start = 210;
 % fin = 909;
-start = 111;
+start = 150;
 fin = length(log_data);
 X = log_data(start:fin, 1:5);
 X_ref = log_data(start:fin, 7:11);
