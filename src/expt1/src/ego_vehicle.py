@@ -49,7 +49,7 @@ class LowLevel:
         self.e_a = 0.0 # for throttle PID
         self.e_l = 0.0 # for steering PID
         
-        # default vehicle state (sim frame)
+        # Default vehicle state (sim frame)
         self.x = 0.01
         self.y = 0.01
         self.vx = 0.01
@@ -57,14 +57,14 @@ class LowLevel:
         self.ax = 0.01
         self.ay = 0.01
         self.theta = np.arctan2(0.439, 112.71) # constant for straight road
-        self.theta_dot = 0.01 # not needed for straight road
-        # default highlevel states
+        # self.theta_dot = 0.01 # not needed for straight road
+        # Default highlevel states
         self.s = 0.1
         self.v = 0.1
         self.a = 0.1
         self.l = self.l0
         self.rl = 0.1
-        # default highlevel reference
+        # Default highlevel reference
         self.s_ref = 0
         self.v_ref = 2.5
         self.a_ref = 0
@@ -74,11 +74,10 @@ class LowLevel:
         self.ul_ref = self.l0 
 
         # default NV loc
-        self.nv_s = 150.0
+        self.nv_s = 150
         self.nv_l = 1
 
-        # default obs loc
-        self.s_obs = 150.0
+        self.s_obs = 150
 
         self.pos_pub = rospy.Publisher("/ego_pos_topic", Pose, queue_size=10)
         self.vel_pub = rospy.Publisher("/ego_vel_topic", Twist, queue_size=10)
@@ -91,8 +90,7 @@ class LowLevel:
         self.ul_sub = rospy.Subscriber("/plan_ul_topic", Pose, self.ul_callback)
 
         self.NV_pos_sub = rospy.Subscriber("/NV_pos_topic", Pose, self.nv_pos_callback)
-
-        self.obs_sub = rospy.Subscriber("/obs_pos_topic", Pose, self.obs_callback)
+        self.obs_pos_sub = rospy.Subscriber("/obs_pos_topic", Pose, self.obs_pos_callback)
         
     def pos_callback(self, pos_msg):
         self.s_ref = pos_msg.position.x
@@ -117,10 +115,10 @@ class LowLevel:
         self.nv_s = -((x_NV - 85.235) * np.cos(0.003895) + (y_NV - 13.415) * np.sin(0.003895))
         self.nv_l = (-(x_NV - 85.235) * np.sin(0.003895) + (y_NV - 13.415) * np.cos(0.003895)) / self.lane_width + 1
 
-    def obs_callback(self, obs_msg):
-        x_obs = obs_msg.position.x
-        y_obs = obs_msg.position.y
-        self.s_obs = -((x_obs - 85.235) * np.cos(0.003895) + (y_obs - 13.415) * np.sin(0.003895))
+    def obs_pos_callback(self, obs_pos_msg):
+        x_obs = obs_pos_msg.position.x
+        y_obs = obs_pos_msg.position.y
+        self.s_obs =  -((x_obs - 85.235) * np.cos(0.003895) + (y_obs - 13.415) * np.sin(0.003895))     
     
     def sim2hl(self):
         """ 
@@ -152,7 +150,7 @@ class LowLevel:
         self.ax = vehicle_accleration.x
         self.ay = vehicle_accleration.y
         # self.theta = vehicle_transform.rotation.yaw * 2 * np.pi / 360 # convert to  radians
-        # self.theta_dot = vehicle_angular_vel.z * 2 * np.pi / 360      
+        self.theta_dot = vehicle_angular_vel.z * 2 * np.pi / 360      
 
         # Convert to high-level frame
         self.sim2hl()
@@ -163,8 +161,7 @@ class LowLevel:
             u_a = (self.v_ref - self.v)
         else:
             u_a = (self.ua_ref - self.a) + 0.02 * (self.e_a + (self.ua_ref - self.a) * self.dt) + 0.1 * ((self.ua_ref - self.a) - self.e_a) / self.dt
-            # u_a = 2*(self.a_ref - self.a) + 1 * (self.e_a + (self.a_ref - self.a) * self.dt) + 0.1 * ((self.a_ref - self.a) - self.e_a) / self.dt
-        
+                    
         u_steer = 0.25 * (self.l - self.ul_ref) + 0.25 * (self.e_l + (self.l - self.ul_ref) * self.dt) + 1.0 * ((self.l - self.ul_ref) - self.e_l) / self.dt
 
         self.e_a = (self.ua_ref - self.a)
@@ -178,7 +175,7 @@ class LowLevel:
     def nv_loc(self):
         return self.nv_s, self.nv_l
     
-    def obs_loc(self):        
+    def obs_loc(self):
         return self.s_obs
     
     def run(self):
@@ -247,13 +244,14 @@ def pygame_callback(data, obj):
 # actors into the simulation.
 blueprint_library = world.get_blueprint_library()
 
-# Choose a transform from the list of recommended spawn points of the map
-recommended_spawn_points = world.get_map().get_spawn_points()
+vehicle_bp = blueprint_library.filter('model3')[0]
 
 # Blue Ego Vehicle
-vehicle_bp = blueprint_library.filter('model3')[0]
 if vehicle_bp.has_attribute('color'):
     vehicle_bp.set_attribute('color', '0,0,255')
+
+# Choose a transform from the list of recommended spawn points of the map
+recommended_spawn_points = world.get_map().get_spawn_points()
 
 transform = recommended_spawn_points[45]
 # transform.location += carla.Location(x=15, y=3.7)
@@ -329,7 +327,6 @@ def game_loop():
         # Data to plot
         s, l, s_ref, l_ref = low_level.ego_data()
         s_nv, l_nv = low_level.nv_loc()
-        # s_obs = low_level.obs_loc(stopped_veh)
         s_obs = low_level.obs_loc()
 
         # Plot settings
@@ -344,10 +341,14 @@ def game_loop():
         plt.title("Tracking")
         plt.xlabel("Lane")
         plt.ylabel("Road length [m]")
-        plt.legend([ego_point, ref_point, nv_point, obs_point], ['Ego', 'Ref', 'NV', 'Stopped Veh'])        
+        plt.legend([ego_point, ref_point, nv_point], ['Ego', 'Ref', 'NV'])        
 
         end = False
         t = 0
+        u_a_prev = 0
+        u_throttle_prev = 0
+        u_brake_prev = 0
+        dt_sim = 0.05
         while not end:
             # Advance the simulation time
             world.tick()
@@ -370,7 +371,7 @@ def game_loop():
                     if isinstance(tl, carla.TrafficLight):
                         tl.set_state(carla.TrafficLightState.Green)
                         tl.freeze(True)                      
-            # if t == 850:
+            # if t == 650:
             #     # set traffic light to red            
             #     for tl in world.get_actors().filter('traffic.*'):
             #         if isinstance(tl, carla.TrafficLight):
@@ -384,12 +385,21 @@ def game_loop():
             # print("steer: ", u_steer)
 
             if u_a >= 0:
-                vehicle_control.throttle = u_a
+                # vehicle_control.throttle = u_a
+                u_throttle = u_throttle_prev + ((-1/0.1)*u_throttle_prev + (1/0.1)*(u_a + (u_a - u_a_prev)/dt_sim))*dt_sim
+                vehicle_control.throttle = u_throttle
+                u_a_prev = u_a
+                u_throttle_prev = u_throttle
             else:
-                vehicle_control.throttle = 0.5
+                vehicle_control.throttle = 0.25
+                # vehicle_control.throttle = 0
             
             if u_a < 0:
-                vehicle_control.brake = 0.8
+                vehicle_control.brake = u_a
+                # u_brake = u_brake_prev + ((-1/0.1)*u_brake_prev + (1/0.1)*(u_a))*dt_sim
+                # vehicle_control.brake = u_brake
+                # u_brake_prev = u_a
+
             else:
                 vehicle_control.brake = 0
             
@@ -400,7 +410,7 @@ def game_loop():
                 vehicle_control.throttle = 0
                 vehicle_control.brake = 1
 
-            # Apply the control to the car
+             # Apply the control to the car
             vehicle.apply_control(vehicle_control)       
 
             low_level.run()            
@@ -427,8 +437,7 @@ def game_loop():
         camera.stop()
         print('destroying automated vehicle...')
         vehicle.destroy() 
-        camera.destroy()
-        print('destroying stopped vehicle...')     
+        camera.destroy()      
         print('Done.')
         pygame.quit()
 

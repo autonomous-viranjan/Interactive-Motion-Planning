@@ -161,8 +161,7 @@ class LowLevel:
             u_a = (self.v_ref - self.v)
         else:
             u_a = (self.ua_ref - self.a) + 0.02 * (self.e_a + (self.ua_ref - self.a) * self.dt) + 0.1 * ((self.ua_ref - self.a) - self.e_a) / self.dt
-            # u_a = 2*(self.a_ref - self.a) + 1 * (self.e_a + (self.a_ref - self.a) * self.dt) + 0.1 * ((self.a_ref - self.a) - self.e_a) / self.dt
-        
+                    
         u_steer = 0.25 * (self.l - self.ul_ref) + 0.25 * (self.e_l + (self.l - self.ul_ref) * self.dt) + 1.0 * ((self.l - self.ul_ref) - self.e_l) / self.dt
 
         self.e_a = (self.ua_ref - self.a)
@@ -346,6 +345,10 @@ def game_loop():
 
         end = False
         t = 0
+        u_a_prev = 0
+        u_throttle_prev = 0
+        u_brake_prev = 0
+        dt_sim = 0.05
         while not end:
             # Advance the simulation time
             world.tick()
@@ -382,12 +385,21 @@ def game_loop():
             # print("steer: ", u_steer)
 
             if u_a >= 0:
-                vehicle_control.throttle = u_a
+                # vehicle_control.throttle = u_a
+                u_throttle = u_throttle_prev + ((-1/0.1)*u_throttle_prev + (1/0.1)*(u_a + (u_a - u_a_prev)/dt_sim))*dt_sim
+                vehicle_control.throttle = u_throttle
+                u_a_prev = u_a
+                u_throttle_prev = u_throttle
             else:
-                vehicle_control.throttle = 0.5
+                vehicle_control.throttle = 0.25
+                # vehicle_control.throttle = 0
             
             if u_a < 0:
-                vehicle_control.brake = 0.8
+                vehicle_control.brake = u_a
+                # u_brake = u_brake_prev + ((-1/0.1)*u_brake_prev + (1/0.1)*(u_a))*dt_sim
+                # vehicle_control.brake = u_brake
+                # u_brake_prev = u_a
+
             else:
                 vehicle_control.brake = 0
             
