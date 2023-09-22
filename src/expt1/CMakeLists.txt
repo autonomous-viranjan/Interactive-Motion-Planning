@@ -48,5 +48,7 @@ catkin_install_python(PROGRAMS
   src/ego_vehicle.py  
   src/NV.py
   src/stopped_vehicle.py
+  src/NV_.py
+  src/g920.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
