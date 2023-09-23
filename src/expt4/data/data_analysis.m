@@ -3,9 +3,9 @@
 
 clear, clc, close all
 
-log_data = load("log.txt");
+log_data = load("ta6.txt");
 %%
-start = 10;
+start = 62;
 fin = length(log_data);
 X = log_data(start:fin, 1:5);
 X_ref = log_data(start:fin, 7:11);
@@ -17,6 +17,11 @@ alpha_v = log_data(start:fin, 22);
 alpha_a = log_data(start:fin, 23);
 X_nv_pred = log_data(start:fin, 25:27);
 roadlength = 140;
+
+HZ = 20;
+
+T_nv = start/HZ:1/HZ:fin/HZ;
+
 %%
 figure(1)
 set (gca,'DataAspectRatio',[1 15 1],'Xdir','reverse','Xlim',[0.5 2.5],'Ylim',[0 roadlength])
@@ -58,15 +63,15 @@ RMSE = rmse(X_ref, X);
 %%
 figure(3)
 subplot(211)
-plot(Ua,'g')
+plot(T_nv, Ua,'g')
 hold on
-plot(X(:,3));
+plot(T_nv, X(:,3));
 ylabel('m/s^2')
 legend('Command acceleration','Ego acceleration')
 subplot(212)
-plot(Ul,'g')
+plot(T_nv, Ul,'g')
 hold on
-plot(X(:,4))
+plot(T_nv, X(:,4))
 ylabel('Lane')
 legend('Command lane', 'Ego')
 xlabel('Time step')
@@ -131,3 +136,50 @@ plot(X_nv_pred(:,2))
 title('Velocity')
 ylabel('[m/s]')
 legend('NV actual','NV predicted')
+%%
+horizon_data = load("horizonta6.txt");
+
+% Trim start time
+horizon_data = horizon_data(start*20+1:end, :);
+
+s_nv = []; v_nv = []; a_nv = [];
+for i=1:(length(horizon_data)/20)
+    t_nv(i,:) = linspace(start/HZ + (i-1)/HZ, start/HZ + (i-1)/HZ + 20/5, 20);
+
+    s_nv(i,:) = horizon_data((i-1)*20+1:20*i,6)';
+    v_nv(i,:) = horizon_data((i-1)*20+1:20*i,7)';
+    a_nv(i,:) = horizon_data((i-1)*20+1:20*i,8)';
+end
+%%
+figure(10)
+clf
+
+hold on
+for i=1:length(horizon_data)/20
+    plot(t_nv(i,:), s_nv(i,:));
+end
+
+plot(T_nv, X_nv(:,1), 'linewidth', 2, 'color', 'b')
+title('NV Position')
+%%
+figure(11)
+clf
+
+hold on
+for i=1:length(horizon_data)/20
+    plot(t_nv(i,:), v_nv(i,:));
+end
+
+plot(T_nv, X_nv(:,2), 'linewidth', 2, 'color', 'b')
+title('NV Velocity')
+%%
+figure(12)
+clf
+
+hold on
+for i=1:length(horizon_data)/20
+    plot(t_nv(i,:), a_nv(i,:));
+end
+
+plot(T_nv, X_nv(:,3), 'linewidth', 2, 'color', 'b')
+title('NV Acceleartion')

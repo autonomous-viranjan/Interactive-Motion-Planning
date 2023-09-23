@@ -40,11 +40,19 @@ std::vector<double> Imputer::impute(std::vector< std::vector<double> > &nv_traje
 
         model.addConstr(alpha[0][0] + alpha[1][0] == alpha_scale);
 
+        // GRBQuadExpr Jnv = 0;
+        // for (int t=0; t < r; t++) {
+        //     Jnv += (2 * alpha[0][0] * (nv_trajectory[t][0] - ego_trajectory[t][0]) - 2 * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] / (L * L) + nu[0][t]) * (2 * alpha[0][0] * (nv_trajectory[t][0] - ego_trajectory[t][0]) - 2 * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] / (L * L) + nu[0][t])
+        //     + (nu[1][t]) * (nu[1][t])
+        //     + (alpha[1][0] + nu[2][t]) * (alpha[1][0] + nu[2][t])
+        //     + (-dt * nu[2][t] / tau) * (-dt * nu[2][t] / tau)
+        //     + lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W))) * lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W)));
+        // }
         GRBQuadExpr Jnv = 0;
         for (int t=0; t < r; t++) {
             Jnv += (2 * alpha[0][0] * (nv_trajectory[t][0] - ego_trajectory[t][0]) - 2 * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] / (L * L) + nu[0][t]) * (2 * alpha[0][0] * (nv_trajectory[t][0] - ego_trajectory[t][0]) - 2 * (nv_trajectory[t][0] - ego_trajectory[t][0]) * lambda[0][t] / (L * L) + nu[0][t])
             + (nu[1][t]) * (nu[1][t])
-            + (alpha[1][0] + nu[2][t]) * (alpha[1][0] + nu[2][t])
+            + (2 * alpha[1][0] * nv_trajectory[t][2] + nu[2][t]) * (2 * alpha[1][0] * nv_trajectory[t][2] + nu[2][t])
             + (-dt * nu[2][t] / tau) * (-dt * nu[2][t] / tau)
             + lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W))) * lambda[0][t] * (1 - ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) * ((nv_trajectory[t][0] - ego_trajectory[t][0]) / (L * L)) - ((2 - ego_trajectory[t][3]) / (W * W)) * ((2 - ego_trajectory[t][3]) / (W * W)));
         }
