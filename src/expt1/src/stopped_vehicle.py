@@ -67,8 +67,9 @@ def main():
         recommended_spawn_points = world.get_map().get_spawn_points()
 
         transform = recommended_spawn_points[45]
+        transform.location += carla.Location(x=-30, y=-1.8)
         # transform.location += carla.Location(x=-40, y=-1.8)
-        transform.location += carla.Location(x=-50, y=-1.8)
+        # transform.location += carla.Location(x=-50, y=-1.8)
         # transform.location += carla.Location(x=-60, y=-1.8)
         print('Spawned at %s' % transform)
 
