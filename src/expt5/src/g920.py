@@ -31,7 +31,7 @@ class G920():
 
     def run(self):
         # looped in main
-        rospy.init_node("g920_node")
+        rospy.init_node("g920_node", anonymous=True)
         rate = rospy.Rate(20)
 
         while not rospy.is_shutdown():
