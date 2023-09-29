@@ -3,7 +3,7 @@
 
 clear, clc, close all
 
-log_data = load("log.txt");
+log_data = load("am1.txt");
 %%
 start = 39;
 fin = length(log_data);
