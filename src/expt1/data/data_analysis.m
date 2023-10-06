@@ -3,10 +3,7 @@
 
 clear, clc, close all
 
-% log_data = load("log_jb3.txt");
-% log_data = load("log_vb.txt");
-% log_data = load("log_az2.txt");
-log_data = load("log.txt");
+log_data = load("ae3.txt");
 %%
 start = 150;
 fin = length(log_data);
@@ -114,3 +111,31 @@ xlabel('Lane number')
 ylabel('Road length [m]')
 legend('','Actual','Predicted')
 title('NV actual and predicted trajectory')
+
+%% Multi subject plots
+scenario = '3';
+subjects = ['ae', 'am', 'az', 'jb', 'jh', 'ml'];
+
+figure(100)
+set (gca,'DataAspectRatio',[1 15 1],'Xdir','reverse','Xlim',[0.5 2.5],'Ylim',[0 roadlength])
+hold on 
+plot([1.5 1.5],[0 roadlength],'--','LineWidth',2,'Color',[0.5 0.5 0.5]) % lane marking
+xlabel('Lane number')
+ylabel('Road length [m]')
+roadlength = 100;
+for i = 1:2:length(subjects)
+    data = append(subjects(i), subjects(i+1), scenario, '.txt');
+    log_data = load(data);
+    if data == 'ae3.txt'
+        start = 110;
+    else
+        start = 10;
+    end
+    fin = length(log_data);
+    X = log_data(start:fin, 1:5);
+    X_nv = log_data(start:fin, 15:17);
+    X_obs = log_data(start:fin, 19);
+    rectangle('Position',[0.5 (X_obs(1)-(5/2)) 0.5 5],'FaceColor',[0.9 0.8 0.8])
+    plot(X(:,4),X(:,1),'b')
+    plot(X_nv(:,3),X_nv(:,1),'r')
+end
