@@ -9,3 +9,6 @@ This project aims to study the interaction between an autonomous vehicle and a h
 - Gurobi
 - ROS Noetic
 - MATLAB (data analysis)
+
+### Scenario illustration
+![alt text](http://url/to/img.png)
