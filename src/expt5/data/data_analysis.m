@@ -2,6 +2,7 @@
 % EMC2 Lab Clemson University
 
 clear, clc, close all
+
 %%
 subject = 'jh1';
 key = append(subject, '.txt');
