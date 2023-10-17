@@ -12,3 +12,5 @@ This project aims to study the interaction between an autonomous vehicle and a h
 
 ### Scenario illustration
 ![alt text](https://github.com/autonomous-viranjan/Interactive-Motion-Planning/blob/main/scenario.png)
+
+- Blue vehicle is the ego vehicle and red vehicle is the human-driven vehicle.
