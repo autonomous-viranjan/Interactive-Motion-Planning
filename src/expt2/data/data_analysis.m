@@ -3,7 +3,7 @@
 
 clear, clc, close all
 %%
-subject = 'am1';
+subject = 'am3';
 key = append(subject, '.txt');
 log_data = load(key);
 %%
@@ -57,7 +57,7 @@ title('Trajectory')
 %%
 RMSE = rmse(X_ref, X);
 %%
-figure(3)
+figure(33)
 subplot(211)
 plot(Ua,'g')
 hold on
@@ -220,19 +220,24 @@ xlabel('Time step')
 ylabel('NV Acceleration [m/s^2]')
 title('NV Acceleration Prediction')
 
-%% Multi subject plots
-subjects = ['ae1', 'am3', 'az3', 'jb1', 'jh1', 'ml3'];
-
+%% Multi subject
+clear, clc , close all
+%%
+subjects_jmpc = ['ae1', 'am3', 'az3', 'jb1', 'jh1', 'ml3']; % 50 m truck
+% subjects_jmpc = ['ae2', 'am2', 'az2', 'jb3', 'jh2', 'ml2']; % 60 m truck
+% subjects_jmpc = ['ta1', 'am1', 'az1', 'kl1', 'jh3','ml1']; % 70 m truck
+% Plots
+roadlength = 100;
 figure(100)
+title('Joint MPC')
 set (gca,'DataAspectRatio',[1 15 1],'Xdir','reverse','Xlim',[0.5 2.5],'Ylim',[0 roadlength])
 hold on 
 plot([1.5 1.5],[0 roadlength],'--','LineWidth',2,'Color',[0.5 0.5 0.5]) % lane marking
 xlabel('Lane number')
 ylabel('Road length [m]')
-roadlength = 100;
-start = 10;
-for i = 1:3:length(subjects)
-    data = append(subjects(i), subjects(i+1), subjects(i+2), '.txt');
+start = 50;
+for i = 1:3:length(subjects_jmpc)
+    data = append(subjects_jmpc(i), subjects_jmpc(i+1), subjects_jmpc(i+2), '.txt');
     log_data = load(data);
     fin = length(log_data);
     X = log_data(start:fin, 1:5);
@@ -242,3 +247,42 @@ for i = 1:3:length(subjects)
     plot(X_nv(:,4),X_nv(:,1),'r')
     rectangle('Position',[0.5 (X_obs(1)-(5/2)) 0.5 5],'FaceColor',[1 0.8 0.8])
 end
+% Velocity analysis
+v_avg_all = [];
+v_nv_avg_all = [];
+for i = 1:3:length(subjects_jmpc)
+    data = append(subjects_jmpc(i), subjects_jmpc(i+1), subjects_jmpc(i+2), '.txt');
+    log_data = load(data);
+    fin = length(log_data);
+    X = log_data(start:fin, 1:5);
+    v = X(:,2);
+    v_avg = mean(v);
+    v_avg_all = [v_avg_all; v_avg];
+    X_nv = log_data(start:fin, 15:18);
+    v_nv = X_nv(:,2);
+    v_nv_avg = mean(v_nv);
+    v_nv_avg_all = [v_nv_avg_all; v_nv_avg];
+end
+
+ego_avg_v = mean(v_avg_all)
+nv_avg_v = mean(v_nv_avg_all)
+%% Velocity plots
+figure(150)
+subplot(312)
+hold on
+for i = 1:3:length(subjects_jmpc)
+    data = append(subjects_jmpc(i), subjects_jmpc(i+1), subjects_jmpc(i+2), '.txt');
+    log_data = load(data);
+    fin = length(log_data);
+    X = log_data(start:fin, 1:5);
+    v = X(:,2);
+    X_nv = log_data(start:fin, 15:18);
+    v_nv = X_nv(:,2);
+    plot(v, 'b')
+    plot(v_nv, 'r')
+end
+title('Joint MPC')
+xlabel('Time step')
+ylabel('Velocity [m/s]')
+xlim([0 500])
+ylim([0 15])
