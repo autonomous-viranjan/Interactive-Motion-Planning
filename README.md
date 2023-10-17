@@ -11,4 +11,4 @@ This project aims to study the interaction between an autonomous vehicle and a h
 - MATLAB (data analysis)
 
 ### Scenario illustration
-![alt text]([https://github.com/autonomous-viranjan/Interactive-Motion-Planning/scenario.png](https://github.com/autonomous-viranjan/Interactive-Motion-Planning/blob/main/scenario.png)https://github.com/autonomous-viranjan/Interactive-Motion-Planning/blob/main/scenario.png)
+![alt text](https://github.com/autonomous-viranjan/Interactive-Motion-Planning/blob/main/scenario.png)
