@@ -4,7 +4,7 @@
 */
 
 #include "include/jointmpc.h"
-#include "/home/emc2/vb/gurobi10.0.3_linux64/gurobi1003/linux64/include/gurobi_c++.h"
+#include "/home/emc2desktop/vb/gurobi10.0.3_linux64/gurobi1003/linux64/include/gurobi_c++.h"
 
 std::vector<double> Mpc::sol(std::vector<double> &X0, std::vector<double> &X0_NV, double &s_obs, std::ofstream &horizonFile)
 {

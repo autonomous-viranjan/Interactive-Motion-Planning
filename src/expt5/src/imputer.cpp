@@ -6,7 +6,7 @@
     Viranjan Bhattacharyya
     EMC2 Lab Clemson University
 */
-#include "/home/emc2/vb/gurobi10.0.3_linux64/gurobi1003/linux64/include/gurobi_c++.h"
+#include "/home/emc2desktop/vb/gurobi10.0.3_linux64/gurobi1003/linux64/include/gurobi_c++.h"
 #include "include/imputer.h"
 #include "include/jointmpc.h"
 
@@ -17,7 +17,7 @@ std::vector<double> Imputer::impute(std::vector< std::vector<double> > &nv_traje
             Trajectory given by 2D vector [X(k-r), ..., X(k)] => access: trajectory[time_step][state]
             where X(k) = [s(k) v(k) a(k)] 1D vector
 
-        Output: Weights alpha[0] = alpha_risk, alpha[1] = alpha_safe
+        Output: Weights alpha[0] = alpha_proximity, alpha[1] = alpha_acceleration
     */
    std::vector<double> alphas;
    try {

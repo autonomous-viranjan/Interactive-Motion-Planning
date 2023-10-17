@@ -41,7 +41,8 @@ private:
     double qda = 100.0; 
 
     int bigM = 1e5;    
-    double delta = 0.5;
+    // double delta = 0.5;
+    double delta = 0.3;
     double vmax = 36; // m/s
     double ua_min = -5;  // m/s^2;
     double lmin = 0.5;
