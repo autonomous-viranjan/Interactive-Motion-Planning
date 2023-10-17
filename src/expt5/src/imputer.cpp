@@ -17,7 +17,7 @@ std::vector<double> Imputer::impute(std::vector< std::vector<double> > &nv_traje
             Trajectory given by 2D vector [X(k-r), ..., X(k)] => access: trajectory[time_step][state]
             where X(k) = [s(k) v(k) a(k)] 1D vector
 
-        Output: Weights alpha[0] = alpha_risk, alpha[1] = alpha_safe
+        Output: Weights alpha[0] = alpha_proximity, alpha[1] = alpha_acceleration
     */
    std::vector<double> alphas;
    try {
