@@ -17,6 +17,5 @@ This project aims to study the interaction between an autonomous vehicle and a h
 
 ### Case when ego merges ahead
 https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/62226470/064c7315-e940-4ee0-8afd-8fdc49062110
-
 ### Case when ego merges behind
 https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/62226470/5a88e9c4-8c4b-49aa-9047-204ea4a33740
