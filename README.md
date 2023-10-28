@@ -1,5 +1,5 @@
 # Interactive Motion Planning
-This project aims to study the interaction between an autonomous vehicle and a human driven vehicle in urban driving.
+This project aims to develop an optimal control-based interactive motion planning algorithm for an autonomous vehicle interacting with a human-driven vehicle in a mandatory lane change scenario on an urban road.
 
 - Real-time Software-in-the-loop simulation in CARLA with Human-in-the-loop capability.
 - ROS (Noetic) for communication.
