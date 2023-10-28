@@ -1,5 +1,5 @@
 # Interactive Motion Planning
-This project aims to develop an optimal control-based interactive motion planning algorithm for an autonomous vehicle interacting with a human-driven vehicle in a mandatory lane change scenario on an urban road.
+Codebase for adaptive interactive mixed-integer MPC (aiMPC): an optimal control-based interactive motion planning algorithm.
 
 - Real-time Software-in-the-loop simulation in CARLA with Human-in-the-loop capability.
 - ROS (Noetic) for communication.
