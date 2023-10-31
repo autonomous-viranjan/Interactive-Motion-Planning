@@ -2,8 +2,8 @@
 Mandatory lane change (MLC) scenario: a stationary truck in ego's lane. Ego vehicle needs to negotiate with human driven vehicle to change lane.
 - **aiMPC** for high-level motion planning
   - NV cost terms: proximity and acceleration
-      - High proximity term imputed weight implies high interaction
-      - High acceleration term imputed weight implies low interaction
+      - High proximity term imputed weight implies high influence
+      - High acceleration term imputed weight implies low influence
   - Auto Lane Selection
 - PID controller for low-level control
 
