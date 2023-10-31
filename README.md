@@ -22,3 +22,6 @@ https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/622264
 ### A case when ego merges behind
 
 https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/62226470/f22663f6-780c-471e-94e3-66f41bb8012c
+
+
+![shil](https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/62226470/007e4ddd-783e-495a-a7bf-8f61333cc901)
