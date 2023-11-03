@@ -19,13 +19,13 @@ Mandatory lane change scenario: a stopped truck on the right lane necessitates a
 
 aiMPC estimates NV's cost online and adapts the MPC.
 
-### A case when ego merges ahead
+#### A case when ego merges ahead
 https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/62226470/80b97b3e-c7b9-4cf5-933c-67992a033649
 
-### A case when ego merges behind
+#### A case when ego merges behind
 https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/62226470/f22663f6-780c-471e-94e3-66f41bb8012c
 
-### A case where the hunam-driven vehicle nature changes
+#### A case where the NV's nature changes
 https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/62226470/bacb1f65-077f-4fc9-8c1b-87f18a4aafa8
 
-- α\_p and α\_a are the estimated NV cost weights.
+- α<sub>p</sub> and α<sub>a</sub> are the estimated NV cost weights.
