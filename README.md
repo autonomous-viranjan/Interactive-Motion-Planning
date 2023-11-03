@@ -11,7 +11,7 @@ Codebase for adaptive interactive mixed-integer MPC (aiMPC): an optimal control-
 - MATLAB (data analysis)
 
 ### Scenario illustration
-A mandatory lane change scenario: a stopped truck on the right lane necessitates a lane change for the autonomous vehicle.
+Mandatory lane change scenario: a stopped truck on the right lane necessitates a lane change for the autonomous vehicle. It needs to negotiate with a human-driven vehicle on the left lane.
 ![alt text](https://github.com/autonomous-viranjan/Interactive-Motion-Planning/blob/main/scenario.png)
 - Blue vehicle is the ego vehicle and red vehicle is the human-driven vehicle.
 
