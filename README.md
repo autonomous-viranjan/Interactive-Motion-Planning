@@ -28,4 +28,4 @@ https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/622264
 ### A case where the hunam-driven vehicle nature changes
 https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/62226470/bacb1f65-077f-4fc9-8c1b-87f18a4aafa8
 
-- &alpha s are the estimated NV cost weights.
+- α\_p and α\_a are the estimated NV cost weights.
