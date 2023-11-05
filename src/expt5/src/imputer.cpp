@@ -1,7 +1,7 @@
 /*
     Imputer: estimates neighbor behavior by estimating cost weights
         OCP fit to trajectory data to determine nature of NV:
-            J_hat = alpha_proximity (s_NV - s_ego)^2 + alpha_aceleration (a_NV)^2
+            J_hat = alpha_proximity (s_NV - s_ego)^2 + alpha_acceleration (a_NV)^2
     
     Viranjan Bhattacharyya
     EMC2 Lab Clemson University
