@@ -10,6 +10,9 @@ Codebase for adaptive interactive mixed-integer model predictive control (aiMPC)
 - ROS Noetic
 - MATLAB (data analysis)
 
+### Architecture
+[shil-arch.pdf](https://github.com/autonomous-viranjan/Interactive-Motion-Planning/files/13258159/shil-arch.pdf)
+
 ### Test scenario illustration
 Mandatory lane change scenario: a stopped truck on the right lane necessitates a lane change for the autonomous vehicle which needs to negotiate with a human-driven vehicle on the left lane.
 ![alt text](https://github.com/autonomous-viranjan/Interactive-Motion-Planning/blob/main/scenario.png)
