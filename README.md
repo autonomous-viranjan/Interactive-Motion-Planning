@@ -1,14 +1,7 @@
 # Interactive Motion Planning
 Codebase for adaptive interactive mixed-integer model predictive control (aiMPC): an optimal control-based interactive motion planning algorithm for autonomous vehicles.
 
-- Real-time Software-in-the-loop simulation in CARLA with Human-in-the-loop capability.
-- ROS (Noetic) for communication.
-
-## Key dependencies:
-- CARLA simulator
-- Gurobi
-- ROS Noetic
-- MATLAB (data analysis)
+- Real-time Software-and-Human-in-the-loop simulation in CARLA.
 
 ### Test scenario illustration
 Mandatory lane change scenario: a stopped truck on the right lane necessitates a lane change for the autonomous vehicle which needs to negotiate with a human-driven vehicle on the left lane.
@@ -29,3 +22,12 @@ https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/622264
 https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/62226470/bacb1f65-077f-4fc9-8c1b-87f18a4aafa8
 
 - α<sub>p</sub> and α<sub>a</sub> are the estimated NV cost weights.
+
+## Key dependencies:
+- CARLA simulator
+- Gurobi
+- ROS Noetic
+- MATLAB (data analysis)
+
+### Architecture
+![shil-arch-1](https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/62226470/7d8d609b-7c80-4473-9731-b24a91439f96)
