@@ -1,10 +1,10 @@
 /*
+    Viranjan Bhattacharyya
+    EMC2 Lab Clemson University
+    
     Imputer: estimates neighbor behavior by estimating cost weights
         OCP fit to trajectory data to determine nature of NV:
             J_hat = alpha_proximity (s_NV - s_ego)^2 + alpha_acceleration (a_NV)^2
-    
-    Viranjan Bhattacharyya
-    EMC2 Lab Clemson University
 */
 #include "/home/emc2/vb/gurobi10.0.3_linux64/gurobi1003/linux64/include/gurobi_c++.h"
 #include "include/imputer.h"
