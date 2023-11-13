@@ -31,3 +31,15 @@ https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/622264
 
 ### Architecture
 ![shil-arch-1](https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/62226470/7d8d609b-7c80-4473-9731-b24a91439f96)
+
+- Cite as
+```
+@misc{bhattacharyya2023interactive,
+      title={Interactive Motion Planning for Autonomous Vehicles via Adaptive Interactive MPC}, 
+      author={Viranjan Bhattacharyya and Ardalan Vahidi},
+      year={2023},
+      eprint={2311.05810},
+      archivePrefix={arXiv},
+      primaryClass={eess.SY}
+}
+```
