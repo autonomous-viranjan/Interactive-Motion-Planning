@@ -31,7 +31,7 @@ std::vector<double> Imputer::impute(std::vector< std::vector<double> > &nv_traje
 
         for (int t=0; t < r; t++) {
             lambda[0][t] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
-            nu[0][t] = model.addVar(0.0, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
+            nu[0][t] = model.addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
             nu[1][t] = model.addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS);
             nu[2][t] = model.addVar(-GRB_INFINITY, GRB_INFINITY, 0.0, GRB_CONTINUOUS);          
         }
