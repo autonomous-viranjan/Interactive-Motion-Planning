@@ -34,12 +34,24 @@ https://github.com/autonomous-viranjan/Interactive-Motion-Planning/assets/622264
 
 - Cite as
 ```
-@misc{bhattacharyya2023interactive,
-      title={Interactive Motion Planning for Autonomous Vehicles via Adaptive Interactive MPC}, 
-      author={Viranjan Bhattacharyya and Ardalan Vahidi},
-      year={2023},
-      eprint={2311.05810},
-      archivePrefix={arXiv},
-      primaryClass={eess.SY}
-}
+@ARTICLE{10740471,
+
+  author={Bhattacharyya, Viranjan and Vahidi, Ardalan},
+
+  journal={IEEE Transactions on Control Systems Technology}, 
+
+  title={Automated Lane Change via Adaptive Interactive MPC: Human-in-the-Loop Experiments}, 
+
+  year={2024},
+
+  volume={},
+
+  number={},
+
+  pages={1-12},
+
+  keywords={Costs;Planning;Vehicle dynamics;Collision avoidance;Trajectory;Real-time systems;Cost function;Predictive control;Prediction algorithms;Optimal control;Interactive motion planning;inverse optimal control;model predictive control (MPC);optimal control;software-and-human-in-the-loop},
+
+  doi={10.1109/TCST.2024.3478028}}
+
 ```
