@@ -22,3 +22,5 @@ Mandatory lane change (MLC) scenario: a stationary truck in ego's lane. Ego vehi
 #### G920 setup
 - To set up G920 ensure `pyLinuxWheel` is running. jstest-gtk is used to get axis numbers used in `NV.py`
 - if using multiple computers, `rosrun expt5 g920.py` to connect G920 via ROS to `NV_.py`
+
+Note: requires a Precision computer.
