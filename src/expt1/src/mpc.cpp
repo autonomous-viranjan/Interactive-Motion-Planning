@@ -1,6 +1,6 @@
 /*
     Viranjan Bhattacharyya
-    EMC2 Lab Clemson University
+    Efficient Mobility Lab Clemson University
 */
 
 #include "include/mpc.h"
