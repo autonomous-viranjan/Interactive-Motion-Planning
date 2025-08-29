@@ -3,7 +3,7 @@
 # Ego vehicle script
 
 # Author: Viranjan Bhattacharyya
-# EMC2 Lab, Clemson University
+# Efficient Mobility Lab, Clemson University
 
 #--------------------------------------- Imports -------------------------------------                                     
 
