@@ -8,7 +8,7 @@
 
 #-------------------------------------------------------
 # Modified: Viranjan Bhattacharyya (vbhatta@clemson.edu)
-# EMC2 Lab, Clemson, March 2023
+# Efficient Mobility Lab, Clemson, March 2023
 #-------------------------------------------------------
 
 # Script to drive a vehicle using Logitech G920 Wheel
